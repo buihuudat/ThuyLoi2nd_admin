@@ -17,6 +17,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import MessageIcon from "@mui/icons-material/Message";
 import FeedbackIcon from "@mui/icons-material/Feedback";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
+import TaskIcon from "@mui/icons-material/Task";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Avatar,
@@ -60,7 +62,7 @@ export default function SideBar() {
     {
       icon: <DashboardIcon />,
       text: "Dashboard",
-      path: "",
+      path: "/",
       noti: 0,
     },
     {
@@ -70,9 +72,9 @@ export default function SideBar() {
       noti: products.length,
     },
     {
-      icon: <ShoppingCartOutlinedIcon />,
-      text: "Orders",
-      path: "/orders",
+      icon: <TaskIcon />,
+      text: "Approve",
+      path: "/approve",
       noti: countOrder,
     },
     {
@@ -167,7 +169,7 @@ export default function SideBar() {
                 <ListItemIcon>
                   <LogoutIcon color={colors.COLOR1} />
                 </ListItemIcon>
-                <ListItemText primary="Đăng xuất" />
+                <ListItemText primary="Logout" />
               </ListItemButton>
             </ListItem>
           </List>

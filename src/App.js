@@ -10,7 +10,7 @@ import Admin from "./components/pages/Admin";
 import Products from "./components/pages/Admin/Products";
 import Users from "./components/pages/Admin/Users";
 import Login from "./components/pages/Login";
-import Orders from "./components/pages/Admin/Orders";
+import Approve from "./components/pages/Admin/Approve";
 
 const App = () => {
   const darkmode = 0;
@@ -29,7 +29,7 @@ const App = () => {
             <Route path="/" index element={<Admin />} />
             <Route path="/posts" element={<Products />} />
             <Route path="/users" element={<Users />} />
-            <Route path="/orders" element={<Orders />} />
+            <Route path="/approve" element={<Approve />} />
           </Route>
           <Route path="/login" element={<Login />} />
         </Routes>
