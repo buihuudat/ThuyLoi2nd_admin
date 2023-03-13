@@ -25,28 +25,28 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 400,
+  width: "auto",
   bgcolor: "background.paper",
-  border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
 
 export default function AddModal() {
   const [value, setValue] = useState(0);
-  const [image, setImage] = useState("");
+  const [images, setImages] = useState([]);
   const [nameErrText, setNameErrText] = useState("");
   const [descErrText, setDescErrText] = useState("");
   const [priceErrText, setPriceErrText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imgLoading, setImgLoading] = useState(false);
 
   const dispatch = useDispatch();
   const open = useSelector((state) => state.modal.addModal);
 
   useEffect(() => {
     const getAllProduct = async () => {
-      const products = await productApi.getAll();
-      dispatch(setProducts(products));
+      // const products = await productApi.getAll();
+      // dispatch(setProducts(products));
     };
     getAllProduct();
   }, [dispatch, loading]);
@@ -55,7 +55,7 @@ export default function AddModal() {
     dispatch(setAddModal(false));
     setLoading(false);
     setValue(0);
-    setImage("");
+    setImages([]);
     setNameErrText("");
     setDescErrText("");
     setPriceErrText("");
@@ -65,9 +65,14 @@ export default function AddModal() {
     setValue(e.target.value);
   };
 
-  const handleChangeAvatar = async (e) => {
-    setImage(await imageUpload(e.base64));
+  const selectImages = (e) => {
+    console.log(e);
+    // e.map((img) => {
+    //   console.log(img);
+    //   setImages(...images, imageUpload(img.base64));
+    // });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -76,9 +81,7 @@ export default function AddModal() {
       name: formData.get("product_name"),
       description: formData.get("product_desc"),
       price: formData.get("product_price"),
-      discount: formData.get("discount"),
-      count: formData.get("count"),
-      image: image,
+      image: images,
     };
     let err = false;
     if (data.name === "") {
@@ -101,7 +104,7 @@ export default function AddModal() {
     if (err) return;
     setLoading(true);
     setValue(0);
-    setImage("");
+    setImages("");
     setNameErrText("");
     setDescErrText("");
     setPriceErrText("");
@@ -127,7 +130,7 @@ export default function AddModal() {
       >
         <Box sx={style} component={"form"} onSubmit={handleSubmit}>
           <Typography pb={5} align="center" fontWeight={600} variant="h5">
-            Thêm sản phẩm mới
+            Đăng sản phẩm mới
           </Typography>
 
           <FormControl fullWidth>
@@ -149,17 +152,21 @@ export default function AddModal() {
             fullWidth
             sx={{ mt: 3, display: "flex", flexDirection: "column" }}
           >
-            <img
-              src={image}
-              alt={""}
-              style={{
-                width: "200px",
-              }}
-            />
+            {imgLoading &&
+              images.map((image, i) => (
+                <img
+                  key={i}
+                  src={image}
+                  alt={""}
+                  style={{
+                    width: "200px",
+                  }}
+                />
+              ))}
             <FileBase64
               type={"file"}
-              multiple={false}
-              onDone={(e) => handleChangeAvatar(e)}
+              multiple={true}
+              onDone={(e) => selectImages(e)}
             />
           </Button>
           <TextField
@@ -192,10 +199,9 @@ export default function AddModal() {
           <TextField
             fullWidth
             margin="normal"
-            label="Discount %"
-            defaultValue={0}
-            name="discount"
-            type={"number"}
+            label="Location"
+            name="location"
+            type={"text"}
           />
           <TextField
             fullWidth

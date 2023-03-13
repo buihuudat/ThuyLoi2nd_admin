@@ -33,13 +33,6 @@ import { useEffect } from "react";
 import { dataCateGories } from "../../../../data";
 
 const menu = [
-  // {
-  //   icon: (
-  //     <LocalFireDepartmentOutlinedIcon sx={{ width: "60px", height: "60px" }} />
-  //   ),
-  //   title: "Hot",
-  //   type: 'hot',
-  // },
   {
     icon: <RiceBowlOutlinedIcon sx={{ width: "60px", height: "60px" }} />,
     title: "Cơm",
@@ -119,9 +112,13 @@ const Products = () => {
   const [dataProduct, setDataProduct] = useState(dataFilter(menu[0].type));
 
   useEffect(() => {
-    const type = menu[tab].type;
-    setDataProduct(dataFilter(type));
-  }, [products, option]);
+    const setType = () => {
+      const type = menu[tab].type;
+      setDataProduct(dataFilter(type));
+    };
+    setType();
+  }, [tab]);
+
   const handleClick = (e) => {
     const type = menu[e].type;
     setDataProduct(dataFilter(type));

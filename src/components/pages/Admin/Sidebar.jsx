@@ -16,11 +16,18 @@ import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined
 import LogoutIcon from "@mui/icons-material/Logout";
 import MessageIcon from "@mui/icons-material/Message";
 import FeedbackIcon from "@mui/icons-material/Feedback";
-
+import FactCheckIcon from "@mui/icons-material/FactCheck";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Avatar, Chip, ListItemSecondaryAction } from "@mui/material";
+import {
+  Avatar,
+  Chip,
+  ListItemSecondaryAction,
+  Typography,
+} from "@mui/material";
 import { useState } from "react";
 import { useEffect } from "react";
+import colors from "../../../assets/colors";
+import { useSelector } from "react-redux";
 
 const drawerWidth = 200;
 const logo = require("../../../assets/images/logo.png");
@@ -31,10 +38,11 @@ export default function SideBar() {
 
   const [countOrder, setCountOrder] = useState(0);
 
+  const whoami = useSelector((state) => state.user.data);
+
   const orders = [];
   const products = [];
   const users = [];
-  const vouchers = [];
   const feedbacks = [];
   // const orders = useSelector(state => state.userOrder.getAll)
   // const products = useSelector(state => state.products.data)
@@ -56,9 +64,9 @@ export default function SideBar() {
       noti: 0,
     },
     {
-      icon: <AddShoppingCartOutlinedIcon />,
-      text: "Products",
-      path: "/products",
+      icon: <FactCheckIcon />,
+      text: "Posts",
+      path: "/posts",
       noti: products.length,
     },
     {
@@ -118,6 +126,13 @@ export default function SideBar() {
           }}
         />
         <Divider />
+        <Typography align="center" fontWeight={600}>
+          {whoami.fullname}{" "}
+          <Typography fontSize={12} color={colors.COLOR2} fontWeight={600}>
+            {whoami.role === 0 ? "admin" : "saff"}
+          </Typography>
+        </Typography>
+        <Divider />
         <List>
           {headerData.map((data, index) => (
             <ListItem
@@ -125,7 +140,7 @@ export default function SideBar() {
               disablePadding
               sx={
                 data.path === pathname
-                  ? { background: "orange", color: "white" }
+                  ? { background: colors.COLOR5, color: "white" }
                   : {}
               }
             >
@@ -150,7 +165,7 @@ export default function SideBar() {
             <ListItem disablePadding>
               <ListItemButton onClick={handleLogout}>
                 <ListItemIcon>
-                  <LogoutIcon color="warning" />
+                  <LogoutIcon color={colors.COLOR1} />
                 </ListItemIcon>
                 <ListItemText primary="Đăng xuất" />
               </ListItemButton>

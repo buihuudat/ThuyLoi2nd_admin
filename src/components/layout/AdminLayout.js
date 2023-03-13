@@ -5,7 +5,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import SideBar from "../pages/Admin/Sidebar";
 import { setProducts } from "../../redux/reducers/productReducer";
 import { useDispatch, useSelector } from "react-redux";
-import { setAllUser } from "../../redux/reducers/userReducer";
+import { setAllUser, setUser } from "../../redux/reducers/userReducer";
 
 import userApi from "../../api/userApi";
 import authUtils from "../../utils/authUtils";
@@ -23,8 +23,7 @@ const AdminLayout = () => {
         setLoading(false);
         navigate("/login");
       } else {
-        const users = await userApi.getAll();
-        dispatch(setAllUser(users));
+        dispatch(setUser(user));
         setLoading(true);
       }
     };
