@@ -22,6 +22,7 @@ import productApi from "../../../../../api/postProductApi";
 import { useEffect } from "react";
 import { setProducts } from "../../../../../redux/reducers/productReducer";
 import imageUpload from "../../../../../handler/ImageUpload";
+import { dataCateGories } from "../../../../../data";
 
 const style = {
   position: "absolute",
@@ -35,41 +36,6 @@ const style = {
   p: 4,
 };
 
-const menu = [
-  {
-    title: "Hot",
-    type: "hot",
-  },
-  {
-    title: "Cơm",
-    type: "rice",
-  },
-  {
-    title: "Mì",
-    type: "noodle",
-  },
-  {
-    title: "Đồ ăn nhanh",
-    type: "fast_food",
-  },
-  {
-    title: "Coffee",
-    type: "coffee",
-  },
-  {
-    title: "Trà sữa",
-    type: "milk_tea",
-  },
-  {
-    title: "Kem",
-    type: "cream",
-  },
-  {
-    title: "Ăn vặt",
-    type: "junk_food",
-  },
-];
-
 export default function ViewPostProductModal() {
   const [image, setImage] = useState("");
   const [nameErrText, setNameErrText] = useState("");
@@ -80,7 +46,7 @@ export default function ViewPostProductModal() {
   const dispatch = useDispatch();
   const update = useSelector((state) => state.modal.updateModal);
   const type = _.findIndex(
-    menu,
+    dataCateGories,
     (e) => {
       return e.type === update.data.type;
     },
@@ -118,7 +84,7 @@ export default function ViewPostProductModal() {
     const formData = new FormData(e.target);
     const data = {
       _id: update.data._id,
-      type: menu[formData.get("type")].type,
+      type: dataCateGories[formData.get("type")].type,
       name: formData.get("product_name"),
       description: formData.get("product_desc"),
       price: formData.get("product_price"),
@@ -185,7 +151,7 @@ export default function ViewPostProductModal() {
               defaultValue={type}
               onChange={handleChange}
             >
-              {menu.map(({ title }, index) => (
+              {dataCateGories.map(({ title }, index = 0) => (
                 <MenuItem key={index} value={index}>
                   {title}
                 </MenuItem>

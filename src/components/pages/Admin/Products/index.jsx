@@ -59,8 +59,10 @@ const Products = () => {
   const [option, setOption] = useState(0);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [dataPosts, setDataPosts] = useState([]);
-  const [type, setType] = useState("");
+  const [dataPosts, setDataPosts] = useState(
+    _.filter(posts, { category: "dientu" })
+  );
+  const [type, setType] = useState("dientu");
 
   useEffect(() => {
     const getPosts = async () => {
@@ -76,10 +78,6 @@ const Products = () => {
     setTab(e);
     setType(dataCateGories[e].type);
   };
-
-  useEffect(() => {
-    setDataPosts(_.filter(posts, { category: type }));
-  }, [tab, type]);
 
   return (
     <Box>
@@ -184,7 +182,7 @@ const Products = () => {
               p={3}
               sx={{ overflowY: "auto", height: 650 }}
             >
-              {dataPosts.map((data, index) => (
+              {_.filter(posts, { category: type }).map((data, index) => (
                 <Grid key={index} item>
                   <PostCard props={data} />
                 </Grid>
