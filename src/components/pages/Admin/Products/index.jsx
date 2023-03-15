@@ -7,6 +7,7 @@ import {
   CardActionArea,
   CardContent,
   Grid,
+  LinearProgress,
   Typography,
 } from "@mui/material";
 import InputLabel from "@mui/material/InputLabel";
@@ -24,53 +25,14 @@ import SearchAppBar from "./search";
 import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-import FoodCard from "../../../common/FoodCard";
+import PostCard from "../../../common/PostCard";
 import AddModal from "./modals/addModal";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { setAddModal } from "../../../../redux/reducers/modalReducer";
-import UpdateModal from "./modals/updateModal";
+import UpdateModal from "./modals/ViewPostProductModal";
 import { useEffect } from "react";
 import { dataCateGories } from "../../../../data";
-
-const menu = [
-  {
-    icon: <RiceBowlOutlinedIcon sx={{ width: "60px", height: "60px" }} />,
-    title: "Cơm",
-    type: "rice",
-  },
-  {
-    icon: <RamenDiningOutlinedIcon sx={{ width: "60px", height: "60px" }} />,
-    title: "Mì",
-    type: "noodle",
-  },
-  {
-    icon: <LunchDiningOutlinedIcon sx={{ width: "60px", height: "60px" }} />,
-    title: "Đồ ăn nhanh",
-    type: "fast_food",
-  },
-  {
-    icon: <LocalCafeOutlinedIcon sx={{ width: "60px", height: "60px" }} />,
-    title: "Coffee",
-    type: "coffee",
-  },
-  {
-    icon: (
-      <EmojiFoodBeverageOutlinedIcon sx={{ width: "60px", height: "60px" }} />
-    ),
-    title: "Trà sữa",
-    type: "milk_tea",
-  },
-  {
-    icon: <IcecreamOutlinedIcon sx={{ width: "60px", height: "60px" }} />,
-    title: "Kem",
-    type: "cream",
-  },
-  {
-    icon: <KebabDiningOutlinedIcon sx={{ width: "60px", height: "60px" }} />,
-    title: "Ăn vặt",
-    type: "junk_food",
-  },
-];
+import postProductApi from "../../../../api/postProductApi";
 
 const AddToggle = () => {
   const dispatch = useDispatch();
@@ -95,35 +57,29 @@ const AddToggle = () => {
 
 const Products = () => {
   const [option, setOption] = useState(0);
-  // const products = useSelector(state => state.products.data)
-  const products = [];
-
-  const dataFilter = (type) => {
-    const sort = ["createdAt", "price", "price"];
-    const reverse = ["desc", "asc", "desc"];
-    let data = _.filter(products, {
-      type: type,
-    });
-    data = _.orderBy(data, [`${sort[option]}`], [`${reverse[option]}`]);
-    return data;
-  };
-
-  const [tab, setTab] = useState(0);
-  const [dataProduct, setDataProduct] = useState(dataFilter(menu[0].type));
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [dataPosts, setDataPosts] = useState([]);
+  const [type, setType] = useState("");
 
   useEffect(() => {
-    const setType = () => {
-      const type = menu[tab].type;
-      setDataProduct(dataFilter(type));
+    const getPosts = async () => {
+      const data = await postProductApi.gets();
+      setPosts(data);
+      setLoading(false);
     };
-    setType();
-  }, [tab]);
+    getPosts();
+  }, []);
 
+  const [tab, setTab] = useState(0);
   const handleClick = (e) => {
-    const type = menu[e].type;
-    setDataProduct(dataFilter(type));
     setTab(e);
+    setType(dataCateGories[e].type);
   };
+
+  useEffect(() => {
+    setDataPosts(_.filter(posts, { category: type }));
+  }, [tab, type]);
 
   return (
     <Box>
@@ -181,49 +137,61 @@ const Products = () => {
             </Card>
           ))}
         </Box>
-        <Box
-          pt={3}
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            pb: 3,
-          }}
-        >
-          <Typography variant={"h5"} fontWeight={600}>
-            Bài đăng
+        {loading ? (
+          <Box>
+            <LinearProgress />
+          </Box>
+        ) : posts.length <= 0 ? (
+          <Typography fontSize={20} mt={5} align="center" fontWeight={600}>
+            Chưa có bài đăng
           </Typography>
-          <FormControl variant="standard">
-            <InputLabel variant="standard" htmlFor="uncontrolled-native">
-              Sắp xếp
-            </InputLabel>
-            <NativeSelect
-              defaultValue={option}
-              onChange={(e) => setOption(e.target.value)}
-              inputProps={{
-                name: "priceUp",
-                id: "uncontrolled-native",
+        ) : (
+          <Box>
+            <Box
+              pt={3}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                pb: 3,
               }}
             >
-              <option value={0}>Mới nhất</option>
-              <option value={1}>Giá tăng dần</option>
-              <option value={2}>Giá giảm dần</option>
-            </NativeSelect>
-          </FormControl>
-        </Box>
-        <Grid
-          container
-          spacing={3}
-          p={3}
-          sx={{ overflowY: "auto", height: 650 }}
-        >
-          {dataProduct.map((data, index) => (
-            <Grid key={index} item>
-              <FoodCard props={data} />
+              <Typography variant={"h5"} fontWeight={600}>
+                Bài đăng
+              </Typography>
+              <FormControl variant="standard">
+                <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                  Sắp xếp
+                </InputLabel>
+                <NativeSelect
+                  defaultValue={option}
+                  onChange={(e) => setOption(e.target.value)}
+                  inputProps={{
+                    name: "priceUp",
+                    id: "uncontrolled-native",
+                  }}
+                >
+                  <option value={0}>Mới nhất</option>
+                  <option value={1}>Giá tăng dần</option>
+                  <option value={2}>Giá giảm dần</option>
+                </NativeSelect>
+              </FormControl>
+            </Box>
+            <Grid
+              container
+              spacing={3}
+              p={3}
+              sx={{ overflowY: "auto", height: 650 }}
+            >
+              {dataPosts.map((data, index) => (
+                <Grid key={index} item>
+                  <PostCard props={data} />
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
+          </Box>
+        )}
       </Box>
       <AddToggle />
       <AddModal />

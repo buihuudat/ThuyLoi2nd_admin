@@ -23,7 +23,7 @@ const AdminLayout = () => {
         setLoading(false);
         navigate("/login");
       } else {
-        dispatch(setUser(user));
+        const posts = await dispatch(setUser(user));
         setLoading(true);
       }
     };

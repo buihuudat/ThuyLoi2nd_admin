@@ -3,7 +3,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { useDispatch, useSelector } from "react-redux";
-import { Button, TextField } from "@mui/material";
+import { Button, Grid, TextField } from "@mui/material";
 import LoadingButton from "@mui/lab/LoadingButton";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -14,18 +14,18 @@ import { useState } from "react";
 import FileBase64 from "react-file-base64";
 import { setAddModal } from "../../../../../redux/reducers/modalReducer";
 import Toast from "../../../../common/Toast";
-import productApi from "../../../../../api/productApi";
+import postProductApi from "../../../../../api/postProductApi";
 import { useEffect } from "react";
 import { setProducts } from "../../../../../redux/reducers/productReducer";
-import imageUpload from "../../../../../handler/ImageUpload";
 import { dataCateGories } from "../../../../../data";
+import proviceApi from "../../../../../api/proviceAPI";
 
 const style = {
   position: "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "auto",
+  maxWidth: 900,
   maxHeight: "80%",
   overflow: "auto",
   bgcolor: "background.paper",
@@ -40,14 +40,26 @@ export default function AddModal() {
   const [descErrText, setDescErrText] = useState("");
   const [priceErrText, setPriceErrText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [imgLoading, setImgLoading] = useState(false);
+
+  const [provice, setProvice] = useState([]);
+  const [city, setCity] = useState(49);
+  const [districts, setDistricts] = useState([]);
+  const [district, setDistrict] = useState(0);
 
   const dispatch = useDispatch();
   const open = useSelector((state) => state.modal.addModal);
+  const user = useSelector((state) => state.user.data);
 
   useEffect(() => {
+    const getProvice = async () => {
+      const data = await proviceApi.get();
+      setProvice(data);
+    };
+    getProvice();
+  }, []);
+  useEffect(() => {
     const getAllProduct = async () => {
-      const products = await productApi.getAll();
+      const products = await postProductApi.getAll();
       dispatch(setProducts(products));
     };
     getAllProduct();
@@ -67,9 +79,21 @@ export default function AddModal() {
     setValue(e.target.value);
   };
 
+  // get districts
+  useEffect(() => {
+    const districts = () => {
+      provice?.forEach((data, index) => {
+        if (index === city) {
+          setDistricts(data.districts);
+        }
+      });
+    };
+    districts();
+  }, [city, provice]);
+
   const selectImages = async (e) => {
     e.map(async (img) => {
-      setImages((images) => [...images, { url: img.base64 }]);
+      setImages((prevImg) => [...prevImg, { url: img.base64 }]);
     });
   };
 
@@ -77,16 +101,23 @@ export default function AddModal() {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = {
+      user: user._id,
       category: dataCateGories[formData.get("type")].type,
       title: formData.get("product_name"),
       description: formData.get("product_desc"),
-      price: formData.get("product_price"),
-      image: images,
+      price: +formData.get("product_price"),
+      // images: imageUpload(images),
+      images,
       location: {
-        city: formData.get("city"),
-        district: formData.get("district"),
+        city: provice[city].name,
+        district: districts[district].name,
       },
     };
+
+    if (data.price < 1000) {
+      setPriceErrText("Giá không hợp lệ");
+      return;
+    }
 
     setLoading(true);
     setValue(0);
@@ -96,11 +127,10 @@ export default function AddModal() {
     setPriceErrText("");
 
     try {
-      console.log(data);
-      // const createProduct = await productApi.create(data);
-      // Toast("success", `Đã thêm ${createProduct.name}`);
-      // setLoading(false);
-      // dispatch(setAddModal(false));
+      const createProduct = await postProductApi.create(data);
+      Toast("success", `Đã thêm ${createProduct.title}`);
+      setLoading(false);
+      dispatch(setAddModal(false));
     } catch (error) {
       setLoading(false);
       Toast("error", "Thêm thất bại!!!...uhmm maybe đã có lỗi nào đó sảy ra");
@@ -185,22 +215,42 @@ export default function AddModal() {
             error={priceErrText !== ""}
             helperText={priceErrText}
           />
-          <Box display={"flex"} flexDirection="row" gap={6}>
-            <TextField
-              fullWidth
-              margin="normal"
-              label="Thành phố"
-              name="city"
-              type={"text"}
-            />
-            <TextField
-              fullWidth
-              margin="normal"
-              label="Quận, huyện"
-              name="district"
-              type={"text"}
-            />
-          </Box>
+          <Grid pt={4} container spacing={3} justifyContent="space-between">
+            <Grid item xs={4}>
+              <FormControl>
+                <InputLabel>Thành phố</InputLabel>
+                <Select
+                  label="Thành phố"
+                  value={city}
+                  name="city"
+                  onChange={(e) => setCity(e.target.value)}
+                >
+                  {provice.map((data, index) => (
+                    <MenuItem key={index} value={index}>
+                      {data.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth>
+                <InputLabel>Quận/Huyện</InputLabel>
+                <Select
+                  label="Quận/Huyện"
+                  name="district"
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                >
+                  {districts.map((data, index) => (
+                    <MenuItem key={index} value={index}>
+                      {data.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
           <LoadingButton
             fullWidth
             color="success"

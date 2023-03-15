@@ -18,7 +18,7 @@ import {
   setUpdateModal,
 } from "../../../../../redux/reducers/modalReducer";
 import Toast from "../../../../common/Toast";
-import productApi from "../../../../../api/productApi";
+import productApi from "../../../../../api/postProductApi";
 import { useEffect } from "react";
 import { setProducts } from "../../../../../redux/reducers/productReducer";
 import imageUpload from "../../../../../handler/ImageUpload";
@@ -70,7 +70,7 @@ const menu = [
   },
 ];
 
-export default function UpdateModal() {
+export default function ViewPostProductModal() {
   const [image, setImage] = useState("");
   const [nameErrText, setNameErrText] = useState("");
   const [descErrText, setDescErrText] = useState("");
@@ -82,7 +82,7 @@ export default function UpdateModal() {
   const type = _.findIndex(
     menu,
     (e) => {
-      return e.type == update.data.type;
+      return e.type === update.data.type;
     },
     0
   );

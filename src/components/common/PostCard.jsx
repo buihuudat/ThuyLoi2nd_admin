@@ -9,22 +9,20 @@ import {
   Typography,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 
-import React, {useEffect} from "react";
-import _ from "lodash";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import currentFormat from "../../handler/currentFormat";
 import { setUpdateModal } from "../../redux/reducers/modalReducer";
-import productApi from "../../api/productApi";
+import productApi from "../../api/postProductApi";
 import Toast from "./Toast";
 import { setProducts } from "../../redux/reducers/productReducer";
-import { setCart } from "../../redux/reducers/cartReducer";
 import LoadingButton from "@mui/lab/LoadingButton";
-import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
-
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
+import userApi from "../../api/userApi";
+import moment from "moment";
+import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 const style = {
   position: "absolute",
   top: "50%",
@@ -32,17 +30,16 @@ const style = {
   transform: "translate(-50%, -50%)",
   width: "max-content",
   bgcolor: "background.paper",
-  border: "2px solid #000",
   boxShadow: 24,
   p: 4,
 };
 
-const FoodCard = ({ props }) => {
+const PostCard = ({ props }) => {
   const dispatch = useDispatch();
-  const [open, setOpen] = React.useState(false);
-  const { permission } = useSelector((state) => state.user.value);
-  const addCart = useSelector((state) => state.cart.data);
-  const dataProduct = useSelector(state => state.products.data)
+  const [open, setOpen] = useState(false);
+  const [whoPost, setWhoPost] = useState("");
+  const { role } = useSelector((state) => state.user.data);
+
   const handleDelete = async (e) => {
     try {
       const product = await productApi.delete(e);
@@ -55,63 +52,44 @@ const FoodCard = ({ props }) => {
     }
   };
 
+  useEffect(() => {
+    const getUser = async () => {
+      const user = await userApi.get({ _id: props.user });
+      setWhoPost(user.fullname);
+    };
+    getUser();
+  }, [props.user]);
+
   const handleEdit = (e) => {
     dispatch(setUpdateModal({ type: true, data: e }));
   };
 
-  const handleAdd = (e) => {
-    let isExist = false;
-    let cartItems = [...addCart];
-    let productItems = [...dataProduct];
-    
-    cartItems.map((v, i) => {
-      if (e._id === v._id) {
-        isExist = true;
-        cartItems[i] = {
-          ...v,
-          countCartUser: v.countCartUser + 1,
-          count: v.count - 1,
-        };
-      }
-    });
-
-    productItems.map((v, i) => {
-      if (e._id === v._id) {
-        productItems[i] = {
-          ...v,
-          count: v.count - 1,
-          countCartUser: v.countCartUser + 1
-        }
-        dispatch(setProducts([...productItems]))
-      }
-    })
-    
-    isExist && dispatch(setCart([...cartItems]));
-
-    !isExist &&
-      dispatch(
-        setCart([
-          ...cartItems,
-          {
-            ...e,
-            countCartUser: e.countCartUser + 1,
-            count: e.count - 1,
-          },
-        ])
-      );
+  const handleClose = () => {
+    setOpen(false);
   };
 
-  const handleClose = () => {
-    setOpen(false)
-  }
   return (
     <Box>
       <Card sx={{ width: 180 }}>
+        <Box
+          display={"flex"}
+          flexDirection="row"
+          alignItems={"center"}
+          justifyContent={"space-between"}
+        >
+          <Typography>
+            <PermIdentityIcon />
+            {whoPost}
+          </Typography>
+          <Typography fontWeight={600} fontStyle={"italic"}>
+            {moment(props.createdAt).format("MMM Do YY")}
+          </Typography>
+        </Box>
         <CardContent>
           <CardMedia
-            sx={{ width: "100%", height: "100px", objectFit: 'fill' }}
+            sx={{ width: "100%", height: "100px", objectFit: "fill" }}
             component="img"
-            image={props.image}
+            image={props.images[0].url}
           />
           <CardContent
             sx={{
@@ -123,19 +101,10 @@ const FoodCard = ({ props }) => {
             }}
           >
             <Typography variant="body1" fontWeight={600}>
-              {props.name}
+              {props.title}
             </Typography>
             <Typography variant="body2" pt={1} pb={1}>
               {props.description}
-            </Typography>
-            <Typography
-              variant="body1"
-              mt="auto"
-              fontWeight={500}
-              color="orange"
-              sx={{ textDecoration: "line-through" }}
-            >
-              {props.discount !== 0 && currentFormat(props.price)}
             </Typography>
           </CardContent>
           <Box
@@ -148,26 +117,11 @@ const FoodCard = ({ props }) => {
             }}
           >
             <Typography variant="h5" fontWeight={600} color="orange">
-              {currentFormat(
-                props.price - (props.price * props.discount) / 100
-              )}
+              {currentFormat(props.price)}
             </Typography>
-            {props.countCartUser > 0 ? 
-            <IconButton disabled >
-              <PlaylistAddCheckIcon color="success" />
-            </IconButton> : 
-              <IconButton onClick={() => handleAdd(props)}>
-                <AddShoppingCartIcon color="primary" />
-              </IconButton>
-            }
           </Box>
-          {permission === 0 && (
-            <Typography variant="body2" fontWeight={600} color="primary">
-              Số lượng: {props.count}
-            </Typography>
-          )}
         </CardContent>
-        {permission === 0 && (
+        {role === 0 && (
           <Box
             sx={{
               display: "flex",
@@ -180,7 +134,7 @@ const FoodCard = ({ props }) => {
               <DeleteIcon color="error" />
             </IconButton>
             <IconButton onClick={() => handleEdit(props)}>
-              <EditIcon color="primary" />
+              <RemoveRedEyeIcon color="primary" />
             </IconButton>
           </Box>
         )}
@@ -203,7 +157,12 @@ const FoodCard = ({ props }) => {
               gap: 2,
             }}
           >
-            <Button onClick={handleClose} color="primary" fullWidth variant="outlined">
+            <Button
+              onClick={handleClose}
+              color="primary"
+              fullWidth
+              variant="outlined"
+            >
               Hủy
             </Button>
             <LoadingButton
@@ -221,4 +180,4 @@ const FoodCard = ({ props }) => {
   );
 };
 
-export default FoodCard;
+export default PostCard;
