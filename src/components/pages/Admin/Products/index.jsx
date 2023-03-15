@@ -192,7 +192,7 @@ const Products = () => {
           }}
         >
           <Typography variant={"h5"} fontWeight={600}>
-            Chọn sản phẩm
+            Bài đăng
           </Typography>
           <FormControl variant="standard">
             <InputLabel variant="standard" htmlFor="uncontrolled-native">

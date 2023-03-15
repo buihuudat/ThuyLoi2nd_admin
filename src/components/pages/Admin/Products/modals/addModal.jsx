@@ -26,6 +26,8 @@ const style = {
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "auto",
+  maxHeight: "80%",
+  overflow: "auto",
   bgcolor: "background.paper",
   boxShadow: 24,
   p: 4,
@@ -45,8 +47,8 @@ export default function AddModal() {
 
   useEffect(() => {
     const getAllProduct = async () => {
-      // const products = await productApi.getAll();
-      // dispatch(setProducts(products));
+      const products = await productApi.getAll();
+      dispatch(setProducts(products));
     };
     getAllProduct();
   }, [dispatch, loading]);
@@ -65,43 +67,27 @@ export default function AddModal() {
     setValue(e.target.value);
   };
 
-  const selectImages = (e) => {
-    console.log(e);
-    // e.map((img) => {
-    //   console.log(img);
-    //   setImages(...images, imageUpload(img.base64));
-    // });
+  const selectImages = async (e) => {
+    e.map(async (img) => {
+      setImages((images) => [...images, { url: img.base64 }]);
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = {
-      type: dataCateGories[formData.get("type")].type,
-      name: formData.get("product_name"),
+      category: dataCateGories[formData.get("type")].type,
+      title: formData.get("product_name"),
       description: formData.get("product_desc"),
       price: formData.get("product_price"),
       image: images,
+      location: {
+        city: formData.get("city"),
+        district: formData.get("district"),
+      },
     };
-    let err = false;
-    if (data.name === "") {
-      err = true;
-      setNameErrText("Vui lòng nhập tên sản phẩm");
-    }
-    if (data.description === "") {
-      err = true;
-      setDescErrText("Vui lòng nhập nội dung sản phẩm");
-    }
-    if (data.price === "") {
-      err = true;
-      setPriceErrText("Vui lòng nhập giá sản phẩm");
-    }
-    if (data.image === "") {
-      err = true;
-      alert("Hãy thêm ảnh cho sản phẩm");
-    }
 
-    if (err) return;
     setLoading(true);
     setValue(0);
     setImages("");
@@ -110,10 +96,11 @@ export default function AddModal() {
     setPriceErrText("");
 
     try {
-      const createProduct = await productApi.create(data);
-      Toast("success", `Đã thêm ${createProduct.name}`);
-      setLoading(false);
-      dispatch(setAddModal(false));
+      console.log(data);
+      // const createProduct = await productApi.create(data);
+      // Toast("success", `Đã thêm ${createProduct.name}`);
+      // setLoading(false);
+      // dispatch(setAddModal(false));
     } catch (error) {
       setLoading(false);
       Toast("error", "Thêm thất bại!!!...uhmm maybe đã có lỗi nào đó sảy ra");
@@ -130,14 +117,14 @@ export default function AddModal() {
       >
         <Box sx={style} component={"form"} onSubmit={handleSubmit}>
           <Typography pb={5} align="center" fontWeight={600} variant="h5">
-            Đăng sản phẩm mới
+            Đăng mặt hàng mới
           </Typography>
 
           <FormControl fullWidth>
-            <InputLabel>Loại sản phẩm</InputLabel>
+            <InputLabel>Loại hàng</InputLabel>
             <Select
               value={value}
-              label="Loại sản phẩm"
+              label="Loại hàng"
               name="type"
               onChange={handleChange}
             >
@@ -148,21 +135,23 @@ export default function AddModal() {
               ))}
             </Select>
           </FormControl>
-          <Button
-            fullWidth
-            sx={{ mt: 3, display: "flex", flexDirection: "column" }}
-          >
-            {imgLoading &&
+          <Box display="flex" flexDirection="row" p={3} gap={3}>
+            {images &&
               images.map((image, i) => (
                 <img
                   key={i}
-                  src={image}
+                  src={image.url}
                   alt={""}
                   style={{
                     width: "200px",
                   }}
                 />
               ))}
+          </Box>
+          <Button
+            fullWidth
+            sx={{ mt: 3, display: "flex", flexDirection: "column" }}
+          >
             <FileBase64
               type={"file"}
               multiple={true}
@@ -172,7 +161,7 @@ export default function AddModal() {
           <TextField
             fullWidth
             margin="normal"
-            label="Tên sản phẩm"
+            label="Tiêu đề"
             name="product_name"
             error={nameErrText !== ""}
             helperText={nameErrText}
@@ -196,21 +185,22 @@ export default function AddModal() {
             error={priceErrText !== ""}
             helperText={priceErrText}
           />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Location"
-            name="location"
-            type={"text"}
-          />
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Số lượng"
-            defaultValue={1000}
-            name="count"
-            type={"count"}
-          />
+          <Box display={"flex"} flexDirection="row" gap={6}>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Thành phố"
+              name="city"
+              type={"text"}
+            />
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Quận, huyện"
+              name="district"
+              type={"text"}
+            />
+          </Box>
           <LoadingButton
             fullWidth
             color="success"
