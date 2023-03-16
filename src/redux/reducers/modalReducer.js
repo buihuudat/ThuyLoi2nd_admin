@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit"
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   signinModal: false,
@@ -7,80 +7,89 @@ const initialState = {
   addModal: false,
   updateModal: {
     type: false,
-    data: {}
+    data: {},
   },
 
   adminUpdateModal: {
     type: false,
-    data: {}
+    data: {},
   },
 
   addVoucher: false,
   deleteVoucher: {
     data: {},
-    type: false
+    type: false,
   },
 
   pay: {
     type: false,
-    data: {}
+    data: {},
   },
 
   notification: false,
   message: false,
-  support: false
-}
+  support: false,
+
+  approveModal: {
+    type: false,
+    data: {},
+  },
+};
 
 export const modalReducer = createSlice({
-  name: 'modal',
+  name: "modal",
   initialState,
   reducers: {
     setSigninModal: (state, action) => {
-      state.signinModal = action.payload
+      state.signinModal = action.payload;
     },
     setSignupModal: (state, action) => {
-      state.signupModal = action.payload
+      state.signupModal = action.payload;
     },
 
     setAddModal: (state, action) => {
-      state.addModal = action.payload
+      state.addModal = action.payload;
     },
     setUpdateModal: (state, action) => {
-      state.updateModal = action.payload
+      state.updateModal = action.payload;
     },
 
     setAdminUpdateModal: (state, action) => {
-      state.adminUpdateModal = action.payload
+      state.adminUpdateModal = action.payload;
     },
 
     setAddVoucherModal: (state, action) => {
-      state.addVoucher = action.payload
+      state.addVoucher = action.payload;
     },
 
     setDeleteVoucherModal: (state, action) => {
-      state.deleteVoucher = action.payload
+      state.deleteVoucher = action.payload;
     },
 
     setPayModal: (state, action) => {
-      state.pay = action.payload
+      state.pay = action.payload;
     },
 
     setNotificationModal: (state, action) => {
-      state.notification = action.payload
+      state.notification = action.payload;
     },
 
     setMessageModal: (state, action) => {
-      state.message = action.payload
+      state.message = action.payload;
     },
 
     setSupportModal: (state, action) => {
-      state.support = action.payload
-    }
-  }
-})
+      state.support = action.payload;
+    },
 
-export const { 
-  setSigninModal, 
+    setApproveModal: (state, action) => {
+      state.approveModal = action.payload;
+    },
+  },
+});
+
+export const {
+  setSigninModal,
   setSignupModal,
   setAddModal,
   setUpdateModal,
@@ -90,6 +99,7 @@ export const {
   setPayModal,
   setNotificationModal,
   setMessageModal,
-  setSupportModal
-} = modalReducer.actions
-export default modalReducer.reducer
+  setSupportModal,
+  setApproveModal,
+} = modalReducer.actions;
+export default modalReducer.reducer;

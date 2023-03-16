@@ -13,16 +13,17 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import currentFormat from "../../handler/currentFormat";
-import { setUpdateModal } from "../../redux/reducers/modalReducer";
-import productApi from "../../api/postProductApi";
-import Toast from "./Toast";
-import { setProducts } from "../../redux/reducers/productReducer";
+import currentFormat from "../../../../handler/currentFormat";
+import { setUpdateModal } from "../../../../redux/reducers/modalReducer";
+import productApi from "../../../../api/postProductApi";
+import Toast from "../../../common/Toast";
+import { setProducts } from "../../../../redux/reducers/productReducer";
 import LoadingButton from "@mui/lab/LoadingButton";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
-import userApi from "../../api/userApi";
+import userApi from "../../../../api/userApi";
 import moment from "moment";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
+import { post_status } from "../../../../data";
 const style = {
   position: "absolute",
   top: "50%",
@@ -34,18 +35,20 @@ const style = {
   p: 4,
 };
 
-const PostCard = ({ props }) => {
+const PostCard = ({ setLoadingSm, props }) => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const [whoPost, setWhoPost] = useState("");
   const { role } = useSelector((state) => state.user.data);
 
   const handleDelete = async (e) => {
+    setLoadingSm(true);
     try {
-      const product = await productApi.delete(e);
+      const product = await productApi.delete(props._id);
       dispatch(setProducts(product));
       Toast("success", "Đã xóa thành công");
       setOpen(false);
+      setLoadingSm(false);
     } catch (error) {
       Toast("error", "Xóa thất bại");
       setOpen(false);
@@ -122,20 +125,25 @@ const PostCard = ({ props }) => {
           </Box>
         </CardContent>
         {role === 0 && (
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-around",
-              p: 1,
-            }}
-          >
-            <IconButton onClick={() => setOpen(true)}>
-              <DeleteIcon color="error" />
-            </IconButton>
-            <IconButton onClick={() => handleEdit(props)}>
-              <RemoveRedEyeIcon color="primary" />
-            </IconButton>
+          <Box>
+            <Typography align="center" fontWeight={600}>
+              status: {post_status[props.status_check_post]}
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-around",
+                p: 1,
+              }}
+            >
+              <IconButton onClick={() => setOpen(true)}>
+                <DeleteIcon color="error" />
+              </IconButton>
+              <IconButton onClick={() => handleEdit(props)}>
+                <RemoveRedEyeIcon color="primary" />
+              </IconButton>
+            </Box>
           </Box>
         )}
       </Card>

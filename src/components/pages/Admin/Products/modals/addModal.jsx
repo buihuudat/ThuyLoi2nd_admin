@@ -33,7 +33,7 @@ const style = {
   p: 4,
 };
 
-export default function AddModal() {
+export default function AddModal({ setLoadingSm }) {
   const [value, setValue] = useState(0);
   const [images, setImages] = useState([]);
   const [nameErrText, setNameErrText] = useState("");
@@ -59,7 +59,7 @@ export default function AddModal() {
   }, []);
   useEffect(() => {
     const getAllProduct = async () => {
-      const products = await postProductApi.getAll();
+      const products = await postProductApi.gets();
       dispatch(setProducts(products));
     };
     getAllProduct();
@@ -120,6 +120,7 @@ export default function AddModal() {
     }
 
     setLoading(true);
+    setLoadingSm(true);
     setValue(0);
     setImages("");
     setNameErrText("");
@@ -131,6 +132,7 @@ export default function AddModal() {
       Toast("success", `Đã thêm ${createProduct.title}`);
       setLoading(false);
       dispatch(setAddModal(false));
+      setLoadingSm(false);
     } catch (error) {
       setLoading(false);
       Toast("error", "Thêm thất bại!!!...uhmm maybe đã có lỗi nào đó sảy ra");

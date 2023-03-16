@@ -130,6 +130,12 @@ export const Cities = [
 ];
 export const sex = ["Nam", "Nữ", "Khác"];
 
+export const post_status = {
+  access: "Access",
+  pending: "Pending",
+  refuse: "Refuse",
+};
+
 export const dataPostProducts = [
   {
     id: "1",

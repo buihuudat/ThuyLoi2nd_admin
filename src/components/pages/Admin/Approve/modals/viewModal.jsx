@@ -12,13 +12,14 @@ import Select from "@mui/material/Select";
 import { useState } from "react";
 
 import _ from "lodash";
-import FileBase64 from "react-file-base64";
-import { setUpdateModal } from "../../../../../redux/reducers/modalReducer";
+import {
+  setApproveModal,
+  setUpdateModal,
+} from "../../../../../redux/reducers/modalReducer";
 import Toast from "../../../../common/Toast";
 import productApi from "../../../../../api/postProductApi";
 import { useEffect } from "react";
 import { setProducts } from "../../../../../redux/reducers/productReducer";
-import imageUpload from "../../../../../handler/ImageUpload";
 import { dataCateGories } from "../../../../../data";
 
 const style = {
@@ -34,15 +35,12 @@ const style = {
   p: 4,
 };
 
-export default function ViewPostProductModal() {
-  const [images, setImages] = useState([]);
-  const [nameErrText, setNameErrText] = useState("");
-  const [descErrText, setDescErrText] = useState("");
-  const [priceErrText, setPriceErrText] = useState("");
+export default function ViewPostApproveModal() {
   const [loading, setLoading] = useState(false);
+  const [submit, setSubmit] = useState("pending");
 
   const dispatch = useDispatch();
-  const update = useSelector((state) => state.modal.updateModal);
+  const update = useSelector((state) => state.modal.approveModal);
   const type = _.findIndex(
     dataCateGories,
     (e) => {
@@ -51,66 +49,22 @@ export default function ViewPostProductModal() {
     0
   );
 
-  useEffect(() => {
-    const getAllProduct = async () => {
-      const products = await productApi.gets();
-      dispatch(setProducts(products));
-    };
-    getAllProduct();
-  }, [dispatch, loading]);
-
   const handleClose = () => {
-    dispatch(setUpdateModal({ type: false, data: {} }));
-    setLoading(false);
-    setImages("");
-    setNameErrText("");
-    setDescErrText("");
-    setPriceErrText("");
+    dispatch(setApproveModal({ type: false, data: {} }));
   };
 
-  const handleChangeAvatar = async (e) => {
-    setImages(await imageUpload(e.base64));
-  };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
     const data = {
-      _id: update.data._id,
-      type: dataCateGories[formData.get("type")].type,
-      name: formData.get("product_name"),
-      description: formData.get("product_desc"),
-      price: formData.get("product_price"),
-      images: images || update.data.image,
+      ...update.data,
+      status_check_post: submit,
     };
-    let err = false;
-    if (data.name === "") {
-      err = true;
-      setNameErrText("Vui lòng nhập tên sản phẩm");
-    }
-    if (data.description === "") {
-      err = true;
-      setDescErrText("Vui lòng nhập nội dung sản phẩm");
-    }
-    if (data.price === "") {
-      err = true;
-      setPriceErrText("Vui lòng nhập giá sản phẩm");
-    }
-    if (data.image === "") {
-      err = true;
-      alert("Hãy thêm ảnh cho sản phẩm");
-    }
-
-    if (err) return;
-    setLoading(true);
-    setNameErrText("");
-    setDescErrText("");
-    setPriceErrText("");
 
     try {
-      const updateProduct = await productApi.update(data);
-      Toast("success", `Đã cập nhật ${updateProduct.name}`);
+      const updateProduct = await productApi.statusUpdate(data);
+      Toast("success", `Đã cập nhật ${updateProduct.title}`);
       setLoading(false);
-      dispatch(setUpdateModal({ type: false, data: {} }));
+      dispatch(setApproveModal({ type: false, data: {} }));
     } catch (error) {
       setLoading(false);
       Toast(
@@ -135,7 +89,12 @@ export default function ViewPostProductModal() {
 
           <FormControl fullWidth>
             <InputLabel>Loại sản phẩm</InputLabel>
-            <Select label="Loại sản phẩm" name="type" defaultValue={type}>
+            <Select
+              disabled
+              label="Loại sản phẩm"
+              name="type"
+              defaultValue={type}
+            >
               {dataCateGories.map(({ title }, index = 0) => (
                 <MenuItem key={index} value={index}>
                   {title}
@@ -154,24 +113,14 @@ export default function ViewPostProductModal() {
               />
             ))}
           </Box>
-          <Button
-            fullWidth
-            sx={{ mt: 3, display: "flex", flexDirection: "column" }}
-          >
-            <FileBase64
-              type={"file"}
-              multiple={false}
-              onDone={(e) => handleChangeAvatar(e)}
-            />
-          </Button>
+
           <TextField
             fullWidth
             margin="normal"
             label="Tiêu đề"
             name="product_name"
             defaultValue={update.data.title}
-            error={nameErrText !== ""}
-            helperText={nameErrText}
+            disabled
           />
           <TextField
             fullWidth
@@ -181,8 +130,7 @@ export default function ViewPostProductModal() {
             label="Mô tả"
             name="product_desc"
             defaultValue={update.data.description}
-            error={descErrText !== ""}
-            helperText={descErrText}
+            disabled
           />
           <TextField
             fullWidth
@@ -191,19 +139,30 @@ export default function ViewPostProductModal() {
             name="product_price"
             type={"number"}
             defaultValue={update.data.price}
-            error={priceErrText !== ""}
-            helperText={priceErrText}
+            disabled
           />
-          <LoadingButton
-            fullWidth
-            color="success"
-            variant="outlined"
-            sx={{ mt: 2 }}
-            loading={loading}
-            type={"submit"}
-          >
-            Cập nhật
-          </LoadingButton>
+          <Box>
+            <Button
+              fullWidth
+              color="error"
+              variant="outlined"
+              type="submit"
+              onClick={() => setSubmit("refuse")}
+            >
+              Refuse
+            </Button>
+            <LoadingButton
+              fullWidth
+              color="success"
+              variant="outlined"
+              sx={{ mt: 2 }}
+              loading={loading}
+              type={"submit"}
+              onClick={() => setSubmit("access")}
+            >
+              Cập nhật
+            </LoadingButton>
+          </Box>
         </Box>
       </Modal>
     </div>

@@ -3,12 +3,12 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import SideBar from "../pages/Admin/Sidebar";
-import { setProducts } from "../../redux/reducers/productReducer";
-import { useDispatch, useSelector } from "react-redux";
-import { setAllUser, setUser } from "../../redux/reducers/userReducer";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../redux/reducers/userReducer";
 
-import userApi from "../../api/userApi";
 import authUtils from "../../utils/authUtils";
+import postProductApi from "../../api/postProductApi";
+import { setPostProduct } from "../../redux/reducers/postReducer";
 
 const AdminLayout = () => {
   const [loading, setLoading] = useState(false);
@@ -23,7 +23,12 @@ const AdminLayout = () => {
         setLoading(false);
         navigate("/login");
       } else {
-        const posts = await dispatch(setUser(user));
+        const getPosts = async () => {
+          const posts = await postProductApi.gets();
+          dispatch(setPostProduct(posts));
+        };
+        getPosts();
+        dispatch(setUser(user));
         setLoading(true);
       }
     };

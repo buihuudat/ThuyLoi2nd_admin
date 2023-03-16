@@ -14,24 +14,17 @@ import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
 import NativeSelect from "@mui/material/NativeSelect";
 
-import RiceBowlOutlinedIcon from "@mui/icons-material/RiceBowlOutlined";
-import RamenDiningOutlinedIcon from "@mui/icons-material/RamenDiningOutlined";
-import LunchDiningOutlinedIcon from "@mui/icons-material/LunchDiningOutlined";
-import LocalCafeOutlinedIcon from "@mui/icons-material/LocalCafeOutlined";
-import EmojiFoodBeverageOutlinedIcon from "@mui/icons-material/EmojiFoodBeverageOutlined";
-import IcecreamOutlinedIcon from "@mui/icons-material/IcecreamOutlined";
-import KebabDiningOutlinedIcon from "@mui/icons-material/KebabDiningOutlined";
 import SearchAppBar from "./search";
 import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-import PostCard from "../../../common/PostCard";
+import PostCard from "./PostCard";
 import AddModal from "./modals/addModal";
 import { useDispatch } from "react-redux";
 import { setAddModal } from "../../../../redux/reducers/modalReducer";
 import UpdateModal from "./modals/ViewPostProductModal";
 import { useEffect } from "react";
-import { dataCateGories } from "../../../../data";
+import { dataCateGories, post_status } from "../../../../data";
 import postProductApi from "../../../../api/postProductApi";
 
 const AddToggle = () => {
@@ -56,22 +49,29 @@ const AddToggle = () => {
 };
 
 const Products = () => {
-  const [option, setOption] = useState(0);
+  const [option, setOption] = useState("access");
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [dataPosts, setDataPosts] = useState(
-    _.filter(posts, { category: "dientu" })
-  );
   const [type, setType] = useState("dientu");
+  const [postData, setPostData] = useState([]);
+  const [loadingSm, setLoadingSm] = useState(false);
 
   useEffect(() => {
     const getPosts = async () => {
       const data = await postProductApi.gets();
-      setPosts(data);
+      setPostData(data);
       setLoading(false);
     };
     getPosts();
-  }, []);
+  }, [loadingSm]);
+
+  useEffect(() => {
+    setPosts(
+      _.filter(postData, {
+        status_check_post: Object.keys(post_status)[option],
+      })
+    );
+  }, [postData, option]);
 
   const [tab, setTab] = useState(0);
   const handleClick = (e) => {
@@ -135,47 +135,48 @@ const Products = () => {
             </Card>
           ))}
         </Box>
-        {loading ? (
-          <Box>
-            <LinearProgress />
+
+        <Box>
+          <Box
+            pt={3}
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              pb: 3,
+            }}
+          >
+            <Typography variant={"h5"} fontWeight={600}>
+              Bài đăng
+            </Typography>
+            <FormControl variant="standard">
+              <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                Sắp xếp
+              </InputLabel>
+              <NativeSelect
+                defaultValue={option}
+                onChange={(e) => setOption(e.target.value)}
+                inputProps={{
+                  name: "priceUp",
+                  id: "uncontrolled-native",
+                }}
+              >
+                <option value={0}>Access</option>
+                <option value={1}>Pending</option>
+                <option value={2}>Refuse</option>
+              </NativeSelect>
+            </FormControl>
           </Box>
-        ) : posts.length <= 0 ? (
-          <Typography fontSize={20} mt={5} align="center" fontWeight={600}>
-            Chưa có bài đăng
-          </Typography>
-        ) : (
-          <Box>
-            <Box
-              pt={3}
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                pb: 3,
-              }}
-            >
-              <Typography variant={"h5"} fontWeight={600}>
-                Bài đăng
-              </Typography>
-              <FormControl variant="standard">
-                <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                  Sắp xếp
-                </InputLabel>
-                <NativeSelect
-                  defaultValue={option}
-                  onChange={(e) => setOption(e.target.value)}
-                  inputProps={{
-                    name: "priceUp",
-                    id: "uncontrolled-native",
-                  }}
-                >
-                  <option value={0}>Mới nhất</option>
-                  <option value={1}>Giá tăng dần</option>
-                  <option value={2}>Giá giảm dần</option>
-                </NativeSelect>
-              </FormControl>
+          {loading ? (
+            <Box>
+              <LinearProgress />
             </Box>
+          ) : posts.length <= 0 ? (
+            <Typography fontSize={20} mt={5} align="center" fontWeight={600}>
+              Chưa có bài đăng
+            </Typography>
+          ) : (
             <Grid
               container
               spacing={3}
@@ -184,15 +185,15 @@ const Products = () => {
             >
               {_.filter(posts, { category: type }).map((data, index) => (
                 <Grid key={index} item>
-                  <PostCard props={data} />
+                  <PostCard setLoadingSm={setLoadingSm} props={data} />
                 </Grid>
               ))}
             </Grid>
-          </Box>
-        )}
+          )}
+        </Box>
       </Box>
       <AddToggle />
-      <AddModal />
+      <AddModal setLoadingSm={setLoadingSm} />
       <UpdateModal />
     </Box>
   );
