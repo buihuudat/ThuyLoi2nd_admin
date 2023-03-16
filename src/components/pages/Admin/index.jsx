@@ -5,7 +5,9 @@ import { Box, Divider, Grid, Paper, Typography } from "@mui/material";
 import GroupIcon from "@mui/icons-material/Group";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import SellIcon from "@mui/icons-material/Sell";
+import AddTaskIcon from "@mui/icons-material/AddTask";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
+import { useSelector } from "react-redux";
 
 const dataInfo = [
   {
@@ -15,21 +17,20 @@ const dataInfo = [
   },
   {
     icon: <Inventory2Icon sx={{ width: 60, height: 60 }} />,
-    title: "Product",
+    title: "Posts",
     count: 0,
   },
   {
-    icon: <ShoppingCartIcon sx={{ width: 60, height: 60 }} />,
-    title: "Order",
+    icon: <AddTaskIcon sx={{ width: 60, height: 60 }} />,
+    title: "Approve",
     count: 0,
   },
-  {
-    icon: <SellIcon sx={{ width: 60, height: 60 }} />,
-    title: "Total Sell",
-    count: 0,
-  },
+  // {
+  //   icon: <SellIcon sx={{ width: 60, height: 60 }} />,
+  //   title: "Total Sell",
+  //   count: 0,
+  // },
 ];
-
 const Information = () => (
   <Box>
     <Grid container spacing={3} justifyContent="center">
@@ -67,16 +68,15 @@ const Information = () => (
 );
 
 const Admin = () => {
-  // const usersRedux = useSelector((state) => state.user.allUser);
-  // const productsRedux = useSelector(state => state.products.data)
+  const usersRedux = useSelector((state) => state.user.allUser);
+  const posts = useSelector((state) => state.post.all);
   const users = (arr, key, value) =>
     _.filter(arr, {
       [key]: value,
     });
-  // dataInfo[0].count = users(usersRedux, "permission", 1).length;
-  // dataInfo[1].count = productsRedux.length
-  dataInfo[0].count = 2;
-  dataInfo[1].count = 1;
+  dataInfo[0].count = users(usersRedux, "permission", 1).length;
+  dataInfo[1].count = posts.length;
+  dataInfo[2].count = _.filter(posts, { status_check_post: "pending" }).length;
 
   return (
     <Box>

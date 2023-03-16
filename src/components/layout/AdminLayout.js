@@ -4,16 +4,27 @@ import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import SideBar from "../pages/Admin/Sidebar";
 import { useDispatch } from "react-redux";
-import { setUser } from "../../redux/reducers/userReducer";
+import { setAllUser, setUser } from "../../redux/reducers/userReducer";
 
 import authUtils from "../../utils/authUtils";
 import postProductApi from "../../api/postProductApi";
 import { setPostProduct } from "../../redux/reducers/postReducer";
+import userApi from "../../api/userApi";
 
 const AdminLayout = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const getPosts = async () => {
+    const posts = await postProductApi.gets();
+    dispatch(setPostProduct(posts));
+  };
+
+  const getUsers = async () => {
+    const users = await userApi.gets();
+    dispatch(setAllUser(users));
+  };
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -23,10 +34,7 @@ const AdminLayout = () => {
         setLoading(false);
         navigate("/login");
       } else {
-        const getPosts = async () => {
-          const posts = await postProductApi.gets();
-          dispatch(setPostProduct(posts));
-        };
+        getUsers();
         getPosts();
         dispatch(setUser(user));
         setLoading(true);

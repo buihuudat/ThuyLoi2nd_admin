@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
 
 import PropTypes from "prop-types";
 import { alpha } from "@mui/material/styles";
@@ -42,10 +41,15 @@ export default function Users() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
   const [openModalSubmit, setOpenModalSubmit] = useState(false);
+  const [users, setUsers] = useState([]);
 
-  const users = useSelector((state) => state.user.allUser);
-
-  let rows = users;
+  useEffect(() => {
+    const getUsers = async () => {
+      const users = await userApi.gets();
+      setUsers(users);
+    };
+    getUsers();
+  }, []);
 
   function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -64,7 +68,7 @@ export default function Users() {
   }
 
   function stableSort(array, comparator) {
-    const stabilizedThis = array.map((el, index) => [el, index]);
+    const stabilizedThis = array?.map((el, index) => [el, index]);
     stabilizedThis.sort((a, b) => {
       const order = comparator(a[0], b[0]);
       if (order !== 0) {
@@ -101,6 +105,12 @@ export default function Users() {
       label: "Phone",
     },
     {
+      id: "address",
+      numeric: false,
+      disablePadding: false,
+      label: "Address",
+    },
+    {
       id: "password",
       numeric: false,
       disablePadding: true,
@@ -134,44 +144,46 @@ export default function Users() {
     };
 
     return (
-      <TableHead>
-        <TableRow>
-          <TableCell padding="checkbox">
-            <Checkbox
-              color="primary"
-              indeterminate={numSelected > 0 && numSelected < rowCount}
-              checked={rowCount > 0 && numSelected === rowCount}
-              onChange={onSelectAllClick}
-              inputProps={{
-                "aria-label": "select all desserts",
-              }}
-            />
-          </TableCell>
-          {headCells.map((headCell) => (
-            <TableCell
-              key={headCell.id}
-              align={headCell.numeric ? "right" : "left"}
-              padding={headCell.disablePadding ? "none" : "normal"}
-              sortDirection={orderBy === headCell.id ? order : false}
-            >
-              <TableSortLabel
-                active={orderBy === headCell.id}
-                direction={orderBy === headCell.id ? order : "asc"}
-                onClick={createSortHandler(headCell.id)}
-              >
-                {headCell.label}
-                {orderBy === headCell.id ? (
-                  <Box component="span" sx={visuallyHidden}>
-                    {order === "desc"
-                      ? "sorted descending"
-                      : "sorted ascending"}
-                  </Box>
-                ) : null}
-              </TableSortLabel>
+      users && (
+        <TableHead>
+          <TableRow>
+            <TableCell padding="checkbox">
+              <Checkbox
+                color="primary"
+                indeterminate={numSelected > 0 && numSelected < rowCount}
+                checked={rowCount > 0 && numSelected === rowCount}
+                onChange={onSelectAllClick}
+                inputProps={{
+                  "aria-label": "select all desserts",
+                }}
+              />
             </TableCell>
-          ))}
-        </TableRow>
-      </TableHead>
+            {headCells.map((headCell) => (
+              <TableCell
+                key={headCell.id}
+                align={headCell.numeric ? "right" : "left"}
+                padding={headCell.disablePadding ? "none" : "normal"}
+                sortDirection={orderBy === headCell.id ? order : false}
+              >
+                <TableSortLabel
+                  active={orderBy === headCell.id}
+                  direction={orderBy === headCell.id ? order : "asc"}
+                  onClick={createSortHandler(headCell.id)}
+                >
+                  {headCell.label}
+                  {orderBy === headCell.id ? (
+                    <Box component="span" sx={visuallyHidden}>
+                      {order === "desc"
+                        ? "sorted descending"
+                        : "sorted ascending"}
+                    </Box>
+                  ) : null}
+                </TableSortLabel>
+              </TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+      )
     );
   }
 
@@ -272,7 +284,7 @@ export default function Users() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n) => n._id);
+      const newSelected = users.map((n) => n._id);
       setSelected(newSelected);
       return;
     }
@@ -309,9 +321,9 @@ export default function Users() {
 
   const isSelected = (name) => selected.indexOf(name) !== -1;
 
-  // Avoid a layout jump when reaching the last page with empty rows.
+  // Avoid a layout jump when reaching the last page with empty users.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
 
   return (
     <Box
@@ -324,7 +336,7 @@ export default function Users() {
       }}
     >
       <Paper sx={{ width: "100%", mb: 1, p: 0 }}>
-        <Box sx={{ p: 2, fontWeight: 600 }}>Total {rows.length}</Box>
+        <Box sx={{ p: 2, fontWeight: 600 }}>Total {users.length}</Box>
         <EnhancedTableToolbar numSelected={selected.length} />
         <TableContainer>
           <Table
@@ -338,12 +350,12 @@ export default function Users() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={users.length}
             />
             <TableBody>
               {/* if you don't need to support IE11, you can replace the `stableSort` call with:
-                 rows.slice().sort(getComparator(order, orderBy)) */}
-              {stableSort(rows, getComparator(order, orderBy))
+                 users.slice().sort(getComparator(order, orderBy)) */}
+              {stableSort(users, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const isItemSelected = isSelected(row._id);
@@ -376,6 +388,7 @@ export default function Users() {
                       <TableCell>{row.fullname}</TableCell>
                       <TableCell>{row.email}</TableCell>
                       <TableCell>{row.phone}</TableCell>
+                      <TableCell>{row.addess}</TableCell>
                       <TableCell padding="none">
                         <TextField
                           variant="standard"
@@ -468,7 +481,7 @@ export default function Users() {
         <TablePagination
           rowsPerPageOptions={[10, 15, 20]}
           component="div"
-          count={rows.length}
+          count={users.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

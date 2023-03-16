@@ -10,8 +10,6 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import AddShoppingCartOutlinedIcon from "@mui/icons-material/AddShoppingCartOutlined";
-import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MessageIcon from "@mui/icons-material/Message";
@@ -42,21 +40,12 @@ export default function SideBar() {
 
   const whoami = useSelector((state) => state.user.data);
 
-  const orders = [];
-  const products = [];
-  const users = [];
-  const feedbacks = [];
-  // const orders = useSelector(state => state.userOrder.getAll)
-  // const products = useSelector(state => state.products.data)
-  // const users = useSelector(state => state.user.allUser)
-  // const vouchers = useSelector(state => state.voucher.data)
-  // const feedbacks = useSelector(state => state.user.allFeedback)
+  const posts = useSelector((state) => state.post.all);
+  const users = useSelector((state) => state.user.allUser);
 
   useEffect(() => {
-    orders.map((order) =>
-      setCountOrder(_.filter(order.products, { status: false }).length)
-    );
-  }, [orders]);
+    setCountOrder(_.filter(posts, { status_check_post: "pending" }).length);
+  }, [posts]);
 
   const headerData = [
     {
@@ -69,7 +58,7 @@ export default function SideBar() {
       icon: <FactCheckIcon />,
       text: "Posts",
       path: "/posts",
-      noti: products.length,
+      noti: posts.length,
     },
     {
       icon: <TaskIcon />,
@@ -87,13 +76,7 @@ export default function SideBar() {
       icon: <MessageIcon />,
       text: "Messages",
       path: "/message",
-      noti: users.length,
-    },
-    {
-      icon: <FeedbackIcon />,
-      text: "Feedbacks",
-      path: "/feedback",
-      noti: _.filter(feedbacks, { resolve: false }).length,
+      // noti: users.length,
     },
   ];
 

@@ -4,7 +4,6 @@ import userReducer from "./reducers/userReducer";
 import modalReducer from "./reducers/modalReducer";
 import handlerReducer from "./reducers/handlerReducer";
 import productReducer from "./reducers/productReducer";
-import orderReducer from "./reducers/orderReducer";
 import postReducer from "./reducers/postReducer";
 
 const store = configureStore({
@@ -13,8 +12,6 @@ const store = configureStore({
     modal: modalReducer,
     handler: handlerReducer,
     products: productReducer,
-    userOrder: orderReducer,
-
     post: postReducer,
   },
 });

@@ -6,7 +6,7 @@ const userApi = {
   updateAvatar: (payload) =>
     axiosClient.put(`/user/update-avatar/${payload._id}`, payload),
   delete: (payload) => axiosClient.delete(`/user/${payload._id}`, payload),
-  getAll: () => axiosClient.get("user"),
+  gets: () => axiosClient.get("user"),
 };
 
 export default userApi;
