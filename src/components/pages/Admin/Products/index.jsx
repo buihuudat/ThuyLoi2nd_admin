@@ -49,35 +49,34 @@ const AddToggle = () => {
 };
 
 const Products = () => {
-  const [option, setOption] = useState("access");
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [option, setOption] = useState("access");
   const [type, setType] = useState("dientu");
-  const [postData, setPostData] = useState([]);
   const [loadingSm, setLoadingSm] = useState(false);
+  const [tab, setTab] = useState(0);
 
   useEffect(() => {
     const getPosts = async () => {
       const data = await postProductApi.gets();
-      setPostData(data);
+      setPosts(data);
       setLoading(false);
     };
     getPosts();
   }, [loadingSm]);
 
-  useEffect(() => {
-    setPosts(
-      _.filter(postData, {
-        status_check_post: Object.keys(post_status)[option],
-      })
-    );
-  }, [postData, option]);
-
-  const [tab, setTab] = useState(0);
   const handleClick = (e) => {
     setTab(e);
     setType(dataCateGories[e].type);
   };
+
+  console.log(
+    _.filter(posts, {
+      category: type,
+      status_check_post: option,
+    }),
+    option
+  );
 
   return (
     <Box>
@@ -156,7 +155,9 @@ const Products = () => {
               </InputLabel>
               <NativeSelect
                 defaultValue={option}
-                onChange={(e) => setOption(e.target.value)}
+                onChange={(e) =>
+                  setOption(Object.keys(post_status)[e.target.value])
+                }
                 inputProps={{
                   name: "priceUp",
                   id: "uncontrolled-native",
@@ -183,7 +184,10 @@ const Products = () => {
               p={3}
               sx={{ overflowY: "auto", height: 650 }}
             >
-              {_.filter(posts, { category: type }).map((data, index) => (
+              {_.filter(posts, {
+                category: type,
+                status_check_post: option,
+              }).map((data, index) => (
                 <Grid key={index} item>
                   <PostCard setLoadingSm={setLoadingSm} props={data} />
                 </Grid>

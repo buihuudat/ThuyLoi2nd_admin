@@ -12,14 +12,9 @@ import Select from "@mui/material/Select";
 import { useState } from "react";
 
 import _ from "lodash";
-import {
-  setApproveModal,
-  setUpdateModal,
-} from "../../../../../redux/reducers/modalReducer";
+import { setApproveModal } from "../../../../../redux/reducers/modalReducer";
 import Toast from "../../../../common/Toast";
 import productApi from "../../../../../api/postProductApi";
-import { useEffect } from "react";
-import { setProducts } from "../../../../../redux/reducers/productReducer";
 import { dataCateGories } from "../../../../../data";
 
 const style = {
@@ -160,7 +155,7 @@ export default function ViewPostApproveModal() {
               type={"submit"}
               onClick={() => setSubmit("access")}
             >
-              Cập nhật
+              Access
             </LoadingButton>
           </Box>
         </Box>
