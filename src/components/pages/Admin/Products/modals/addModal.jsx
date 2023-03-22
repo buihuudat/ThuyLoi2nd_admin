@@ -39,6 +39,7 @@ export default function AddModal({ setLoadingSm }) {
   const [nameErrText, setNameErrText] = useState("");
   const [descErrText, setDescErrText] = useState("");
   const [priceErrText, setPriceErrText] = useState("");
+  const [phoneErrText, setphoneErrText] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [provice, setProvice] = useState([]);
@@ -73,6 +74,7 @@ export default function AddModal({ setLoadingSm }) {
     setNameErrText("");
     setDescErrText("");
     setPriceErrText("");
+    setphoneErrText("");
   };
 
   const handleChange = (e) => {
@@ -101,7 +103,10 @@ export default function AddModal({ setLoadingSm }) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = {
-      user: user._id,
+      user: {
+        user_id: user._id,
+        phone: formData.get("phone"),
+      },
       category: dataCateGories[formData.get("type")].type,
       title: formData.get("product_name"),
       description: formData.get("product_desc"),
@@ -126,6 +131,7 @@ export default function AddModal({ setLoadingSm }) {
     setNameErrText("");
     setDescErrText("");
     setPriceErrText("");
+    setphoneErrText("");
 
     try {
       const createProduct = await postProductApi.create(data);
@@ -216,6 +222,15 @@ export default function AddModal({ setLoadingSm }) {
             type={"number"}
             error={priceErrText !== ""}
             helperText={priceErrText}
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            required
+            label="Số điện thoại liên hệ"
+            name="phone"
+            error={phoneErrText !== ""}
+            helperText={phoneErrText}
           />
           <Grid pt={4} container spacing={3} justifyContent="space-between">
             <Grid item xs={4}>

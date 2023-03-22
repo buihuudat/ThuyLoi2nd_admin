@@ -70,14 +70,6 @@ const Products = () => {
     setType(dataCateGories[e].type);
   };
 
-  console.log(
-    _.filter(posts, {
-      category: type,
-      status_check_post: option,
-    }),
-    option
-  );
-
   return (
     <Box>
       <SearchAppBar />
