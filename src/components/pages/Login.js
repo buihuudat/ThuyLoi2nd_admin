@@ -34,7 +34,7 @@ const Login = () => {
       setLoading(false);
       const errors = e?.data?.errors;
       errors?.forEach((e) => {
-        if (e.param === "username") {
+        if (e.param === "phone") {
           setPhoneErrText(e.msg);
         }
         if (e.param === "password") {
