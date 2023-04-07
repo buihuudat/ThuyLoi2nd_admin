@@ -8,6 +8,8 @@ import SellIcon from "@mui/icons-material/Sell";
 import AddTaskIcon from "@mui/icons-material/AddTask";
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import { useSelector } from "react-redux";
+import { ColumnChart } from "../../columnChart";
+import { PieChart } from "../../pieChart";
 
 const dataInfo = [
   {
@@ -81,6 +83,10 @@ const Admin = () => {
   return (
     <Box>
       <Information />
+      <Box sx={{ display: "flex", flexDirection: "row" }}>
+        <ColumnChart />
+        <PieChart />
+      </Box>
     </Box>
   );
 };

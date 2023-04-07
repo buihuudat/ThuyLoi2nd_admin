@@ -95,7 +95,7 @@ export default function ViewPostProductModal() {
       err = true;
       setPriceErrText("Vui lòng nhập giá sản phẩm");
     }
-    if (data.image === "") {
+    if (data.images.length < 1) {
       err = true;
       alert("Hãy thêm ảnh cho sản phẩm");
     }
@@ -148,6 +148,7 @@ export default function ViewPostProductModal() {
               <img
                 key={i}
                 src={image.url}
+                alt="img"
                 style={{
                   width: "200px",
                 }}

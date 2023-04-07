@@ -1,8 +1,17 @@
 import { LoadingButton } from "@mui/lab";
-import { Box, Paper, TextField, Typography } from "@mui/material";
+import {
+  Avatar,
+  Box,
+  Container,
+  Paper,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authApi from "../../api/authApi";
+
+const logo = require("../../assets/images/logos/Logo-Thuy_Loi.png");
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
@@ -46,42 +55,67 @@ const Login = () => {
   return (
     <Box
       sx={{
-        display: "flex",
+        displayL: "flex",
+        flexDirection: "row",
         justifyContent: "center",
-        alignItems: "center",
-        alignContent: "center",
         height: "100vh",
+        pt: 6,
       }}
     >
-      <Paper sx={{ p: 6 }}>
-        <Typography align="center" pb={5} fontWeight={600} fontSize={30}>
-          ADMIN LOGIN
-        </Typography>
-        <Box
-          component={"form"}
-          onSubmit={handleLogin}
-          sx={{ display: "flex", gap: 3, flexDirection: "column", width: 400 }}
-        >
-          <TextField
-            required
-            label="Phone"
-            name="phone"
-            error={phoneErrText !== ""}
-            helperText={phoneErrText}
-          />
-          <TextField
-            required
-            label="Password"
-            name="password"
-            type={"password"}
-            error={passwordErrText !== ""}
-            helperText={passwordErrText}
-          />
-          <LoadingButton loading={loading} variant="contained" type="submit">
-            Login
-          </LoadingButton>
-        </Box>
-      </Paper>
+      <Avatar
+        src={logo}
+        sx={{
+          width: 120,
+          height: "auto",
+          objectFit: "cover",
+          m: 5,
+          ml: "auto",
+          mr: "auto",
+        }}
+      />
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          alignContent: "center",
+        }}
+      >
+        <Paper sx={{ p: 6 }}>
+          <Typography align="center" pb={5} fontWeight={600} fontSize={30}>
+            ADMIN LOGIN
+          </Typography>
+          <Box
+            component={"form"}
+            onSubmit={handleLogin}
+            sx={{
+              display: "flex",
+              gap: 3,
+              flexDirection: "column",
+              width: 400,
+            }}
+          >
+            <TextField
+              required
+              label="Phone"
+              name="phone"
+              error={phoneErrText !== ""}
+              helperText={phoneErrText}
+            />
+            <TextField
+              required
+              label="Password"
+              name="password"
+              type={"password"}
+              error={passwordErrText !== ""}
+              helperText={passwordErrText}
+            />
+            <LoadingButton loading={loading} variant="contained" type="submit">
+              Login
+            </LoadingButton>
+          </Box>
+        </Paper>
+      </Box>
     </Box>
   );
 };

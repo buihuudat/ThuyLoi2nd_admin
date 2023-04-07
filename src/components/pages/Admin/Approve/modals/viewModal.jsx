@@ -30,8 +30,7 @@ const style = {
   p: 4,
 };
 
-export default function ViewPostApproveModal() {
-  const [loading, setLoading] = useState(false);
+export default function ViewPostApproveModal({ loading, setLoading }) {
   const [submit, setSubmit] = useState("pending");
 
   const dispatch = useDispatch();
@@ -102,6 +101,7 @@ export default function ViewPostApproveModal() {
               <img
                 key={i}
                 src={image.url}
+                alt="images"
                 style={{
                   width: "200px",
                 }}

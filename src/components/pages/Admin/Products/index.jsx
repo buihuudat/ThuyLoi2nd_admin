@@ -26,6 +26,7 @@ import UpdateModal from "./modals/ViewPostProductModal";
 import { useEffect } from "react";
 import { dataCateGories, post_status } from "../../../../data";
 import postProductApi from "../../../../api/postProductApi";
+import SearchResults from "./searchResult";
 
 const AddToggle = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,8 @@ const Products = () => {
   const [type, setType] = useState("dientu");
   const [loadingSm, setLoadingSm] = useState(false);
   const [tab, setTab] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const getPosts = async () => {
@@ -70,9 +73,24 @@ const Products = () => {
     setType(dataCateGories[e].type);
   };
 
+  useEffect(() => {
+    setSearchResults(
+      searchQuery
+        ? posts.filter(
+            (post) =>
+              post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              post.description.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : []
+    );
+  }, [searchQuery, posts]);
+
   return (
     <Box>
-      <SearchAppBar />
+      <SearchAppBar setSearchQuery={setSearchQuery} />
+      <Box sx={{ position: "absolute", zIndex: 999 }}>
+        {searchQuery && <SearchResults results={searchResults} />}
+      </Box>
       <Box sx={{ p: 3 }}>
         <Box
           sx={{
@@ -91,12 +109,12 @@ const Products = () => {
                   ? {
                       backgroundColor: "orange",
                       color: "#fff",
-                      minWidth: "150px",
+                      width: "130px",
                       height: "max-content",
                     }
                   : {
                       height: "max-content",
-                      minWidth: "150px",
+                      width: "130px",
                     }
               }
             >

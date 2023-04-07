@@ -19,6 +19,7 @@ import { useEffect } from "react";
 import { setProducts } from "../../../../../redux/reducers/productReducer";
 import { dataCateGories } from "../../../../../data";
 import proviceApi from "../../../../../api/proviceAPI";
+import imageUpload from "../../../../../handler/ImageUpload";
 
 const style = {
   position: "absolute",
@@ -66,7 +67,7 @@ export default function AddModal({ setLoadingSm }) {
     getAllProduct();
   }, [dispatch, loading]);
 
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
     dispatch(setAddModal(false));
     setLoading(false);
     setValue(0);
@@ -75,11 +76,11 @@ export default function AddModal({ setLoadingSm }) {
     setDescErrText("");
     setPriceErrText("");
     setphoneErrText("");
-  };
+  }, [dispatch]);
 
-  const handleChange = (e) => {
+  const handleChange = useDispatch((e) => {
     setValue(e.target.value);
-  };
+  }, []);
 
   // get districts
   useEffect(() => {
@@ -99,51 +100,62 @@ export default function AddModal({ setLoadingSm }) {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = {
-      user: {
-        user_id: user._id,
-        phone: formData.get("phone"),
-      },
-      category: dataCateGories[formData.get("type")].type,
-      title: formData.get("product_name"),
-      description: formData.get("product_desc"),
-      price: +formData.get("product_price"),
-      // images: imageUpload(images),
+  const handleSubmit = React.useCallback(
+    async (e) => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      const data = {
+        user: {
+          user_id: user._id,
+          phone: formData.get("phone"),
+        },
+        category: dataCateGories[formData.get("type")].type,
+        title: formData.get("product_name"),
+        description: formData.get("product_desc"),
+        price: +formData.get("product_price"),
+        images: await imageUpload(images),
+        location: {
+          city: provice[city].name,
+          district: districts[district].name,
+        },
+      };
+
+      if (data.price < 1000) {
+        setPriceErrText("Giá không hợp lệ");
+        return;
+      }
+
+      setLoading(true);
+      setLoadingSm(true);
+      setValue(0);
+      setImages("");
+      setNameErrText("");
+      setDescErrText("");
+      setPriceErrText("");
+      setphoneErrText("");
+
+      try {
+        const createProduct = await postProductApi.create(data);
+        Toast("success", `Đã thêm ${createProduct.title}`);
+        setLoading(false);
+        dispatch(setAddModal(false));
+        setLoadingSm(false);
+      } catch (error) {
+        setLoading(false);
+        Toast("error", "Thêm thất bại!!!...uhmm maybe đã có lỗi nào đó sảy ra");
+      }
+    },
+    [
+      city,
+      dispatch,
+      district,
+      districts,
       images,
-      location: {
-        city: provice[city].name,
-        district: districts[district].name,
-      },
-    };
-
-    if (data.price < 1000) {
-      setPriceErrText("Giá không hợp lệ");
-      return;
-    }
-
-    setLoading(true);
-    setLoadingSm(true);
-    setValue(0);
-    setImages("");
-    setNameErrText("");
-    setDescErrText("");
-    setPriceErrText("");
-    setphoneErrText("");
-
-    try {
-      const createProduct = await postProductApi.create(data);
-      Toast("success", `Đã thêm ${createProduct.title}`);
-      setLoading(false);
-      dispatch(setAddModal(false));
-      setLoadingSm(false);
-    } catch (error) {
-      setLoading(false);
-      Toast("error", "Thêm thất bại!!!...uhmm maybe đã có lỗi nào đó sảy ra");
-    }
-  };
+      provice,
+      setLoadingSm,
+      user._id,
+    ]
+  );
 
   return (
     <div>

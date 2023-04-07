@@ -41,7 +41,7 @@ const PostCard = ({ setLoadingSm, props }) => {
   const [whoPost, setWhoPost] = useState("");
   const { role } = useSelector((state) => state.user.data);
 
-  const handleDelete = async (e) => {
+  const handleDelete = async () => {
     setLoadingSm(true);
     try {
       const product = await productApi.delete(props._id);
@@ -57,11 +57,11 @@ const PostCard = ({ setLoadingSm, props }) => {
 
   useEffect(() => {
     const getUser = async () => {
-      const user = await userApi.get({ _id: props.user });
+      const user = await userApi.get({ _id: props.user[0].user_id });
       setWhoPost(user.fullname);
     };
     getUser();
-  }, [props.user]);
+  }, [props]);
 
   const handleEdit = (e) => {
     dispatch(setUpdateModal({ type: true, data: e }));

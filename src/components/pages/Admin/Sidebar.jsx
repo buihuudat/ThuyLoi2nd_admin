@@ -12,8 +12,6 @@ import ListItemText from "@mui/material/ListItemText";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
-import MessageIcon from "@mui/icons-material/Message";
-import FeedbackIcon from "@mui/icons-material/Feedback";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import TaskIcon from "@mui/icons-material/Task";
 
@@ -28,8 +26,9 @@ import { useState } from "react";
 import { useEffect } from "react";
 import colors from "../../../assets/colors";
 import { useSelector } from "react-redux";
+import Calendar from "../../calendar";
 
-const drawerWidth = 200;
+const drawerWidth = 330;
 const logo = require("../../../assets/images/logo.png");
 
 export default function SideBar() {
@@ -72,12 +71,12 @@ export default function SideBar() {
       path: "/users",
       noti: users.length,
     },
-    {
-      icon: <MessageIcon />,
-      text: "Messages",
-      path: "/message",
-      // noti: users.length,
-    },
+    // {
+    //   icon: <MessageIcon />,
+    //   text: "Messages",
+    //   path: "/message",
+    //   // noti: users.length,
+    // },
   ];
 
   const handleLogout = () => {
@@ -146,6 +145,9 @@ export default function SideBar() {
             mt: "auto",
           }}
         >
+          <Box>
+            <Calendar />
+          </Box>
           <List>
             <ListItem disablePadding>
               <ListItemButton onClick={handleLogout}>

@@ -87,6 +87,12 @@ export default function Users() {
       label: "CreatedAt",
     },
     {
+      id: "msv",
+      numeric: false,
+      disablePadding: false,
+      label: "Msv",
+    },
+    {
       id: "fullname",
       numeric: false,
       disablePadding: false,
@@ -385,6 +391,7 @@ export default function Users() {
                       <TableCell scope="row" padding="none">
                         {row.createdAt.split("T")[0]}
                       </TableCell>
+                      <TableCell>{row.msv}</TableCell>
                       <TableCell>{row.fullname}</TableCell>
                       <TableCell>{row.email}</TableCell>
                       <TableCell>{row.phone}</TableCell>

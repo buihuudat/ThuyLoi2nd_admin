@@ -19,6 +19,7 @@ const UpdateModal = () => {
   const [passwordErrText, setPasswordErrText] = useState("");
   const [confirmPasswordErrText, setConfirmPasswordErrText] = useState("");
   const [phoneErrText, setPhoneErrText] = useState("");
+  const [msv, setMsv] = useState("");
 
   const [selected, setSelected] = useState({});
   const [disable, setDisable] = useState(true);
@@ -29,6 +30,7 @@ const UpdateModal = () => {
 
   const data = {
     _id: modal.data._id,
+    msv: msv || modal.data.msv,
     fullname: fullname || modal.data.fullname,
     password: password || modal.data.password,
     confirmPassword: confirmPassword || modal.data.password,
@@ -42,6 +44,13 @@ const UpdateModal = () => {
     setLoading(false);
   };
   const handleClose = () => {
+    setEmailErrText("");
+    setPhoneErrText("");
+    setPasswordErrText("");
+    setLoading(false);
+    setDisable(true);
+    setSelected([]);
+    setSelected({});
     dispatch(setAdminUpdateModal({ type: false, data: {} }));
   };
   const handleSubmit = async (e) => {
@@ -58,7 +67,7 @@ const UpdateModal = () => {
       setLoading(false);
       setDisable(true);
       setSelected([]);
-      Toast("success", "Edit successfully 👌");
+      Toast("success", "Edit successfully");
     } catch (error) {
       const errors = error.data.errors;
       errors.forEach((e) => {
@@ -106,6 +115,17 @@ const UpdateModal = () => {
             {modal.data.permission === 0 ? "Admin" : "User"}{" "}
             {modal.data.fullname}
           </h1>
+          <TextField
+            variant="outlined"
+            label="MSV"
+            name="msv"
+            id="msv"
+            defaultValue={modal.data.msv}
+            onChange={(e) => setMsv(e.target.value)}
+            fullWidth
+            margin="normal"
+            disabled={disable}
+          />
           <TextField
             variant="outlined"
             label="Fullname"
