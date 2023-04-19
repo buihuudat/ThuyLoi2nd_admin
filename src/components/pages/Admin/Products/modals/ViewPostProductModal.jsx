@@ -136,7 +136,7 @@ export default function ViewPostProductModal() {
           <FormControl fullWidth>
             <InputLabel>Loại sản phẩm</InputLabel>
             <Select label="Loại sản phẩm" name="type" defaultValue={type}>
-              {dataCateGories.map(({ title }, index = 0) => (
+              {dataCateGories.map(({ title }, index) => (
                 <MenuItem key={index} value={index}>
                   {title}
                 </MenuItem>

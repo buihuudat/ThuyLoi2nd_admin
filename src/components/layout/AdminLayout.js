@@ -10,6 +10,10 @@ import authUtils from "../../utils/authUtils";
 import postProductApi from "../../api/postProductApi";
 import { setPostProduct } from "../../redux/reducers/postReducer";
 import userApi from "../../api/userApi";
+import io from "socket.io-client";
+import { host } from "../../api/axiosClient";
+
+const socket = io(host);
 
 const AdminLayout = () => {
   const [loading, setLoading] = useState(false);
@@ -35,6 +39,10 @@ const AdminLayout = () => {
             const users = await userApi.gets();
             dispatch(setAllUser(users));
           };
+
+          // socket.on("connect", () => {
+          //   socket.emit("user", "buihuudat@123");
+          // });
           getUsers();
           getPosts();
           dispatch(setUser(user));
@@ -48,14 +56,18 @@ const AdminLayout = () => {
     checkAdmin();
   }, [navigate, dispatch, loading]);
 
-  return loading ? (
-    <LinearProgress />
-  ) : (
+  return (
     <Box sx={{ display: "flex" }}>
-      <SideBar />
-      <Box sx={{ flexGrow: 1 }}>
-        <Outlet />
-      </Box>
+      {loading ? (
+        <LinearProgress />
+      ) : (
+        <>
+          <SideBar />
+          <Box sx={{ flexGrow: 1 }}>
+            <Outlet />
+          </Box>
+        </>
+      )}
     </Box>
   );
 };

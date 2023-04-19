@@ -135,11 +135,11 @@ export default function AddModal({ setLoadingSm }) {
       setphoneErrText("");
 
       try {
-        const createProduct = await postProductApi.create(data);
-        Toast("success", `Đã thêm ${createProduct.title}`);
-        setLoading(false);
-        dispatch(setAddModal(false));
-        setLoadingSm(false);
+        // const createProduct = await postProductApi.create(data);
+        // Toast("success", `Đã thêm ${createProduct.title}`);
+        // setLoading(false);
+        // dispatch(setAddModal(false));
+        // setLoadingSm(false);
       } catch (error) {
         setLoading(false);
         Toast("error", "Thêm thất bại!!!...uhmm maybe đã có lỗi nào đó sảy ra");

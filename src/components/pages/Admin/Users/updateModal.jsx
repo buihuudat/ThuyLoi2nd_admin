@@ -15,6 +15,7 @@ const UpdateModal = () => {
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("");
 
+  const [msvErrText, setMsvErrText] = useState("");
   const [emailErrText, setEmailErrText] = useState("");
   const [passwordErrText, setPasswordErrText] = useState("");
   const [confirmPasswordErrText, setConfirmPasswordErrText] = useState("");
@@ -57,32 +58,47 @@ const UpdateModal = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (data.password !== data.confirmPassword) {
+      setConfirmPasswordErrText("Password dont match");
+      return;
+    }
+    setEmailErrText("");
+    setPhoneErrText("");
+    setPasswordErrText("");
+    setSelected([]);
+
     try {
       await userApi.update(data);
-      const users = await userApi.getAll();
-      dispatch(setAllUser(users));
-      setEmailErrText("");
-      setPhoneErrText("");
-      setPasswordErrText("");
-      setLoading(false);
       setDisable(true);
-      setSelected([]);
+      setLoading(false);
+      dispatch(setAdminUpdateModal({ type: false, data: {} }));
       Toast("success", "Edit successfully");
     } catch (error) {
+      console.log(error);
       const errors = error.data.errors;
       errors.forEach((e) => {
-        if (e.param === "phone") {
-          setPhoneErrText(e.msg);
+        const { param, msg } = e;
+        switch (param) {
+          case "msv":
+            setMsvErrText(msg);
+            break;
+          case "email":
+            setEmailErrText(msg);
+            break;
+          case "phone":
+            setPhoneErrText(msg);
+            break;
+          case "password":
+            setPasswordErrText(msg);
+            break;
+          case "confirmPassword":
+            setConfirmPasswordErrText(msg);
+            break;
+          default:
+            break;
         }
-        if (e.param === "password") {
-          setPasswordErrText(e.msg);
-        }
-        if (e.param === "confirmPassword") {
-          setConfirmPasswordErrText(e.msg);
-        }
-        setLoading(false);
-        setDisable(true);
       });
+      setLoading(false);
     }
   };
   return (
@@ -108,11 +124,15 @@ const UpdateModal = () => {
           noValidate
         >
           <Avatar
-            src={modal.data.image}
+            src={modal.data.avatar}
             sx={{ width: 80, height: 80, margin: "1rem auto" }}
           />
           <h1 style={{ margin: "0 auto" }}>
-            {modal.data.permission === 0 ? "Admin" : "User"}{" "}
+            {modal?.data?.boss
+              ? "Boss"
+              : modal.data.role === 0
+              ? "Admin"
+              : "User"}{" "}
             {modal.data.fullname}
           </h1>
           <TextField
@@ -125,6 +145,8 @@ const UpdateModal = () => {
             fullWidth
             margin="normal"
             disabled={disable}
+            error={msvErrText !== ""}
+            helperText={msvErrText}
           />
           <TextField
             variant="outlined"
@@ -179,7 +201,7 @@ const UpdateModal = () => {
             label="password"
             name="password"
             id="password"
-            defaultValue={modal.data.password}
+            defaultValue={""}
             fullWidth
             margin="normal"
             disabled={disable}
@@ -193,22 +215,13 @@ const UpdateModal = () => {
             label="ConfirmPassword"
             name="confirmPassword"
             id="confirmPassword"
-            defaultValue={modal.data.password}
+            defaultValue={""}
             fullWidth
             margin="normal"
             error={confirmPasswordErrText !== ""}
             helperText={confirmPasswordErrText}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          <Button
-            fullWidth
-            color={disable ? "secondary" : "warning"}
-            variant="outlined"
-            onClick={handleEdit}
-            sx={{ mt: 1 }}
-          >
-            {disable ? "Edit" : "Cancel"}
-          </Button>
           <LoadingButton
             sx={disable ? { display: "none" } : { mt: 2 }}
             fullWidth
@@ -219,6 +232,15 @@ const UpdateModal = () => {
           >
             Save
           </LoadingButton>
+          <Button
+            fullWidth
+            color={disable ? "secondary" : "warning"}
+            variant="outlined"
+            onClick={handleEdit}
+            sx={{ mt: 1 }}
+          >
+            {disable ? "Edit" : "Cancel"}
+          </Button>
         </Box>
       </Modal>
     </div>

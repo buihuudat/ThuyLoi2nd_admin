@@ -21,7 +21,7 @@ import Tooltip from "@mui/material/Tooltip";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
-import { TextField, Button, Modal } from "@mui/material";
+import { TextField, Button, Modal, CircularProgress } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import UpdateModal from "./updateModal";
@@ -42,11 +42,13 @@ export default function Users() {
   const [loading, setLoading] = useState(false);
   const [openModalSubmit, setOpenModalSubmit] = useState(false);
   const [users, setUsers] = useState([]);
+  const [firstLoading, setFirstLoading] = useState(true);
 
   useEffect(() => {
     const getUsers = async () => {
       const users = await userApi.gets();
       setUsers(users);
+      setFirstLoading(false);
     };
     getUsers();
   }, []);
@@ -116,12 +118,12 @@ export default function Users() {
       disablePadding: false,
       label: "Address",
     },
-    {
-      id: "password",
-      numeric: false,
-      disablePadding: true,
-      label: "Password",
-    },
+    // {
+    //   id: "password",
+    //   numeric: false,
+    //   disablePadding: true,
+    //   label: "Password",
+    // },
     {
       id: "permission",
       numeric: false,
@@ -149,47 +151,47 @@ export default function Users() {
       onRequestSort(event, property);
     };
 
-    return (
-      users && (
-        <TableHead>
-          <TableRow>
-            <TableCell padding="checkbox">
-              <Checkbox
-                color="primary"
-                indeterminate={numSelected > 0 && numSelected < rowCount}
-                checked={rowCount > 0 && numSelected === rowCount}
-                onChange={onSelectAllClick}
-                inputProps={{
-                  "aria-label": "select all desserts",
-                }}
-              />
-            </TableCell>
-            {headCells.map((headCell) => (
-              <TableCell
-                key={headCell.id}
-                align={headCell.numeric ? "right" : "left"}
-                padding={headCell.disablePadding ? "none" : "normal"}
-                sortDirection={orderBy === headCell.id ? order : false}
+    return firstLoading ? (
+      <CircularProgress />
+    ) : (
+      <TableHead>
+        <TableRow>
+          <TableCell padding="checkbox">
+            <Checkbox
+              color="primary"
+              indeterminate={numSelected > 0 && numSelected < rowCount}
+              checked={rowCount > 0 && numSelected === rowCount}
+              onChange={onSelectAllClick}
+              inputProps={{
+                "aria-label": "select all desserts",
+              }}
+            />
+          </TableCell>
+          {headCells.map((headCell) => (
+            <TableCell
+              key={headCell.id}
+              align={headCell.numeric ? "right" : "left"}
+              padding={headCell.disablePadding ? "none" : "normal"}
+              sortDirection={orderBy === headCell.id ? order : false}
+            >
+              <TableSortLabel
+                active={orderBy === headCell.id}
+                direction={orderBy === headCell.id ? order : "asc"}
+                onClick={createSortHandler(headCell.id)}
               >
-                <TableSortLabel
-                  active={orderBy === headCell.id}
-                  direction={orderBy === headCell.id ? order : "asc"}
-                  onClick={createSortHandler(headCell.id)}
-                >
-                  {headCell.label}
-                  {orderBy === headCell.id ? (
-                    <Box component="span" sx={visuallyHidden}>
-                      {order === "desc"
-                        ? "sorted descending"
-                        : "sorted ascending"}
-                    </Box>
-                  ) : null}
-                </TableSortLabel>
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-      )
+                {headCell.label}
+                {orderBy === headCell.id ? (
+                  <Box component="span" sx={visuallyHidden}>
+                    {order === "desc"
+                      ? "sorted descending"
+                      : "sorted ascending"}
+                  </Box>
+                ) : null}
+              </TableSortLabel>
+            </TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
     );
   }
 
@@ -396,23 +398,31 @@ export default function Users() {
                       <TableCell>{row.email}</TableCell>
                       <TableCell>{row.phone}</TableCell>
                       <TableCell>{row.addess}</TableCell>
-                      <TableCell padding="none">
+                      {/* <TableCell padding="none">
                         <TextField
                           variant="standard"
                           disabled
                           defaultValue={row.password}
                           type="password"
                         />
+                      </TableCell> */}
+                      <TableCell>
+                        {row?.boss
+                          ? "Super admin pro max"
+                          : row.role === 0
+                          ? "Admin"
+                          : "User"}
                       </TableCell>
-                      <TableCell>{row.role === 0 ? "Amin" : "User"}</TableCell>
                       <TableCell align="right">
-                        <Button
-                          type="submit"
-                          color="error"
-                          onClick={() => setOpenModalSubmit(true)}
-                        >
-                          <DeleteIcon />
-                        </Button>
+                        {!row?.boss && (
+                          <Button
+                            type="submit"
+                            color="error"
+                            onClick={() => setOpenModalSubmit(true)}
+                          >
+                            <DeleteIcon />
+                          </Button>
+                        )}
                         <Button onClick={() => handleView(row)}>
                           <RemoveRedEyeIcon />
                         </Button>

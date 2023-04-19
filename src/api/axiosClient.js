@@ -1,8 +1,12 @@
 import axios from "axios";
 // import queryString from "query-string";
 
-// const baseUrl = 'https://buihuudat-food.onrender.com/api'
-const baseURL = "http://localhost:9000/api/";
+const IP = "localhost";
+
+const PORT = 9000;
+export const host = `http://${IP}:${PORT}`;
+
+const baseURL = `http://${IP}:${PORT}/api/`;
 const getToken = () => localStorage.getItem("token");
 
 const axiosClient = axios.create({

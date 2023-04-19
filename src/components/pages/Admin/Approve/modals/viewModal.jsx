@@ -44,6 +44,7 @@ export default function ViewPostApproveModal({ loading, setLoading }) {
   );
 
   const handleClose = () => {
+    setLoading(false);
     dispatch(setApproveModal({ type: false, data: {} }));
   };
 
@@ -54,17 +55,19 @@ export default function ViewPostApproveModal({ loading, setLoading }) {
       status_check_post: submit,
     };
 
+    setLoading(true);
+
     try {
       const updateProduct = await productApi.statusUpdate(data);
       Toast("success", `Đã cập nhật ${updateProduct.title}`);
-      setLoading(false);
       dispatch(setApproveModal({ type: false, data: {} }));
     } catch (error) {
-      setLoading(false);
       Toast(
         "error",
         "Cập nhật thất bại!!!...uhmm maybe đã có lỗi nào đó sảy ra"
       );
+    } finally {
+      setLoading(false);
     }
   };
 

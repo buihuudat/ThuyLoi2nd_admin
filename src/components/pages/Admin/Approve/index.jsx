@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Box, LinearProgress, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import _ from "lodash";
 import PostCard from "./postCart";
 import ViewPostApproveModal from "./modals/viewModal";
 import { setPostProduct } from "../../../../redux/reducers/postReducer";
 import postProductApi from "../../../../api/postProductApi";
+import io from "socket.io-client";
+import { host } from "../../../../api/axiosClient";
+
+const socket = io(host);
 
 const Approve = () => {
-  const [postsData, setPostsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const posts = useSelector((state) => state.post.all);
   const dispatch = useDispatch();
@@ -28,18 +30,28 @@ const Approve = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    setPostsData(_.filter(posts, { status_check_post: "pending" }));
-  }, [posts, loading]);
+    socket.on("post-recieve", (data) => {
+      console.log(data);
+    });
+  }, []);
 
-  return loading ? (
-    <LinearProgress />
-  ) : !postsData ? (
-    <Typography>Không có bài duyệt</Typography>
-  ) : (
+  const pendingPosts = posts.filter(
+    (post) => post.status_check_post === "pending"
+  );
+
+  return (
     <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-      {postsData?.map((post, i) => (
-        <PostCard post={post} key={i} />
-      ))}
+      {loading ? (
+        <LinearProgress />
+      ) : pendingPosts.length === 0 ? (
+        <Typography>Không có bài duyệt</Typography>
+      ) : (
+        <>
+          {pendingPosts.map((post, i) => (
+            <PostCard post={post} key={i} />
+          ))}
+        </>
+      )}
       <ViewPostApproveModal loading={loading} setLoading={setLoading} />
     </Box>
   );
