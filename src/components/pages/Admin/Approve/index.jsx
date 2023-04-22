@@ -12,22 +12,23 @@ const socket = io(host);
 
 const Approve = () => {
   const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const posts = useSelector((state) => state.post.all);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const getPosts = async () => {
-      setLoading(true);
+      setIsLoading(true);
       try {
         const posts = await postProductApi.gets();
         dispatch(setPostProduct(posts));
       } catch {
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     getPosts();
-  }, [dispatch]);
+  }, [dispatch, loading]);
 
   useEffect(() => {
     socket.on("post-recieve", (data) => {
@@ -41,7 +42,7 @@ const Approve = () => {
 
   return (
     <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-      {loading ? (
+      {isLoading ? (
         <LinearProgress />
       ) : pendingPosts.length === 0 ? (
         <Typography>Không có bài duyệt</Typography>
